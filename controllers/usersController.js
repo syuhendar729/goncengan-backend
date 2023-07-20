@@ -10,7 +10,8 @@ const {
     Filter,
 } = require('firebase-admin/firestore')
 
-const serviceAccount = process.env.FIREBASE_SECRET || require('../.cred/ServiceAccount.json')
+const serviceAccount =
+    process.env.FIREBASE_SECRET || require('../.cred/ServiceAccount.json')
 initializeApp({ credential: cert(serviceAccount) })
 const db = getFirestore()
 const Users = db.collection('users')

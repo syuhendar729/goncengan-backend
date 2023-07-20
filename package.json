@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node app.js",
-        "dev": "nodemon"
+        "dev": "nodemon",
+        "pret": "npx prettier . --write"
     },
     "repository": {
         "type": "git",
