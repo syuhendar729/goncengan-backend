@@ -13,49 +13,50 @@ const userRegis = (req, res) => {
             .then((userRecord) => {
                 const { password, ...data } = req.body
                 addUser(data, userRecord.uid)
-                res.json({ msg: 'Berhasil create user!', data })
+    			res.json({ msg: 'Berhasil create user!', data })
             })
             .catch((error) => {
-                res.json({ msg: `Gagal regis!`, error })
+                res.status(500).json({ msg: `Gagal regis!`, error })
             })
     } else res.json({ msg: 'Gada data!' })
 }
 
 const userAuthUpdate = (req, res) => {
-    const { namaBaru, emailBaru, passwordBaru } = req.body
+    const { nama, email, password, uid } = req.body
     if (nama && email && password) {
         getAuth()
             .updateUser(uid, {
-				email: emailBaru,
-                password: passwordBaru,
-                displayName: namaBaru,
+				email,
+                password,
+                displayName: nama
             })
             .then((userRecord) => {
-                console.log('Successfully updated user', userRecord.toJSON())
-				updateUser()
+				const { password, ...data } = req.body
+				updateUser(data, userRecord.uid, req.params.id)
+				res.json({ msg: 'Berhasil update user!', data })
             })
             .catch((error) => {
-                console.log('Error updating user:', error)
+                res.status(500).json({ msg: 'Gagal update user!', error })
             })
-    }
+    } else res.json({ msg: 'Gada data!' })
 }
 
-/* const userToken = async (req, res) => {
- *     const email = req.body.email
- *
- *     const uid = await getAuth().getUserByEmail(email)
- *         .then((userRecord) => userRecord.uid)
- *         .catch((error) => {
- *             res.send({msg: 'Gagal mengambil data user', error})
- *         })
- *     getAuth()
- *       .createCustomToken(uid)
- *       .then((customToken) => {
- *           res.send({token: customToken})
- *       })
- *       .catch((error) => {
- *           res.send({msg: 'Gagal membuat user token!', error})
- *       })
- * } */
+const userToken = async (req, res) => {
+	const email = req.body.email
 
-module.exports = { userRegis }
+	const uid = await getAuth().getUserByEmail(email)
+		.then((userRecord) => userRecord.uid)
+		.catch((error) => {
+			res.send({msg: 'Gagal mengambil data user', error})
+		})
+	getAuth()
+	  .createCustomToken(uid)
+	  .then((customToken) => {
+		  res.send({token: customToken})
+	  })
+	  .catch((error) => {
+		  res.send({msg: 'Gagal membuat user token!', error})
+	  })
+}
+
+module.exports = { userRegis, userAuthUpdate }

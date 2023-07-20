@@ -12,7 +12,7 @@ const {
     updateUser,
     deleteUser,
 } = require('./controllers/usersController')
-const { userRegis, userToken } = require('./controllers/authController')
+const { userRegis, userAuthUpdate } = require('./controllers/authController')
 
 const r = require('express').Router()
 app.use(cors(corsOptions))
@@ -21,11 +21,12 @@ app.use('/users', r)
 
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
+// app.post('/login', userToken)
 
 r.get('/', getUsers)
 r.get('/:id', userAuth, getDetailUser)
 r.post('/', userRegis)
-r.put('/:id', userAuth, updateUser)
+r.put('/:id', userAuth, userAuthUpdate)
 r.delete('/:id', userAuth, deleteUser)
 
 app.listen(port, (req, res) => {

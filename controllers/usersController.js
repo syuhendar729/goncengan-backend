@@ -37,13 +37,9 @@ const deleteUser = async (req, res) => {
         .catch((err) => res.status(500).send({ message: 'GAGAL!' }))
 }
 
-const updateUser = async (req, res) => {
-    const { nama, nim, email, paySync, verified, alamat, file } = req.body
-    const user = Users.doc(req.params.id)
-    await user
-        .update({ nama, nim, email, paySync, verified, alamat, file })
-        .then(() => res.send({ message: 'Berhasil Update!' }))
-        .catch((err) => res.status(500).send({ message: 'GAGAL!' }))
+const updateUser = async (data, uid, id) => {
+    const user = Users.doc(id)
+    await user.update({...data, uid})
 }
 
 module.exports = { getUsers, getDetailUser, addUser, deleteUser, updateUser }
