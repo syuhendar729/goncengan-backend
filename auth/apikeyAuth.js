@@ -7,12 +7,12 @@ function generateRandomToken() {
 let apiKey = generateRandomToken()
 
 setInterval(() => {
-  apiKey = generateRandomToken();
-}, 1800000); // 30 mnt
+    apiKey = generateRandomToken()
+}, 1800000) // 30 mnt
 
 function validateApiKey(req, res, next) {
     const userApiKey = req.headers['apikey']
-	console.log(apiKey);
+    console.log(apiKey)
 
     if (userApiKey && userApiKey === apiKey) {
         return next()

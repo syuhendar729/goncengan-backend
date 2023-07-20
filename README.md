@@ -28,7 +28,6 @@ PUT http://localhost:3000/users/:id
 DELETE http://localhost:3000/users/:id
 ```
 
-
 Model data firestore:
 
 ```json

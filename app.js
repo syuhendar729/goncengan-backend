@@ -1,27 +1,33 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const users = require('./controllers/usersController')
 const port = process.env.PORT || 3000
 const corsOptions = { origin: '*' }
-const r = require('express').Router()
-const { validateApiKey, apiKey } = require('./auth/authMiddleware') 
+// == Authentication ==
+const { userAuth } = require('./auth/userAuth')
+// == Controller ==
+const {
+    getUsers,
+    getDetailUser,
+    updateUser,
+    deleteUser,
+} = require('./controllers/usersController')
+const { userRegis, userToken } = require('./controllers/authController')
 
+const r = require('express').Router()
 app.use(cors(corsOptions))
 app.use(express.json())
 app.use('/users', r)
 
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
-app.get('/api/token', (req, res) => res.json({ apikey: apiKey }))
 
-r.get('/', validateApiKey, users.getUsers)
-r.get('/:id', validateApiKey, users.getDetailUser)
-r.post('/', validateApiKey, users.addUser)
-r.put('/:id', validateApiKey, users.updateUser)
-r.delete('/:id', validateApiKey, users.deleteUser)
+r.get('/', getUsers)
+r.get('/:id', userAuth, getDetailUser)
+r.post('/', userRegis)
+r.put('/:id', userAuth, updateUser)
+r.delete('/:id', userAuth, deleteUser)
 
 app.listen(port, (req, res) => {
     console.log(`Server started on port ${port}`)
 })
-

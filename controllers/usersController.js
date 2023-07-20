@@ -1,14 +1,5 @@
-const {
-    initializeApp,
-    applicationDefault,
-    cert,
-} = require('firebase-admin/app')
-const {
-    getFirestore,
-    Timestamp,
-    FieldValue,
-    Filter,
-} = require('firebase-admin/firestore')
+const { initializeApp, cert } = require('firebase-admin/app')
+const { getFirestore } = require('firebase-admin/firestore')
 
 const serviceAccount =
     process.env.FIREBASE_SECRET || require('../.cred/ServiceAccount.json')
@@ -23,7 +14,6 @@ const getUsers = async (req, res) => {
     const users = await Users.get()
     users.forEach((doc) => {
         result.push({ id: doc.id, ...doc.data() })
-        // console.log(doc.id, '=>', doc.data().nama)
     })
     res.send(result)
 }
@@ -31,22 +21,12 @@ const getUsers = async (req, res) => {
 const getDetailUser = async (req, res) => {
     const user = Users.doc(req.params.id)
     const doc = await user.get()
-    if (!doc.exists) res.send({ message: 'User tidak ditemukan!' })
+    if (!doc.exists) res.send({ msg: 'User tidak ditemukan!' })
     else res.send(doc.data())
 }
 
-const addUser = async (req, res) => {
-    const { nama, nim, email, paySync, verified, alamat, file } = req.body
-    const user = await Users.add({
-        nama,
-        nim,
-        email,
-        paySync,
-        verified,
-        alamat,
-        file,
-    }).catch((err) => res.status(500).send({ message: 'Gagal tambah data!' }))
-    res.send({ message: 'Berhasil tambah data!', user })
+const addUser = (data, uid) => {
+    Users.add({ ...data, uid })
 }
 
 const deleteUser = async (req, res) => {
