@@ -3,31 +3,22 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 3000
 const corsOptions = { origin: '*' }
-// == Authentication ==
-const { userAuth } = require('./auth/userAuth')
-// == Controller ==
-const {
-    getUsers,
-    getDetailUser,
-    updateUser,
-    deleteUser,
-} = require('./controllers/usersController')
-const { userRegis, userAuthUpdate } = require('./controllers/authController')
+const { userFirestore, userFirestoreDetail } = require('./controllers/userFirestoreController')
+const { userAuthCreate, userAuthUpdate } = require('./controllers/userAuthController')
 
-const r = require('express').Router()
+const { userAuth } = require('./middlewares/userAuth')
+const user = require('express').Router()
 app.use(cors(corsOptions))
 app.use(express.json())
-app.use('/users', r)
+app.use('/api/user', user)
 
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
-// app.post('/login', userToken)
 
-r.get('/', getUsers)
-r.get('/:id', userAuth, getDetailUser)
-r.post('/', userRegis)
-r.put('/:id', userAuth, userAuthUpdate)
-r.delete('/:id', userAuth, deleteUser)
+user.get('/', userFirestore)
+user.post('/create', userAuthCreate)
+user.get('/:id', userAuth, userFirestoreDetail)
+user.put('/update', userAuth, userAuthUpdate)
 
 app.listen(port, (req, res) => {
     console.log(`Server started on port ${port}`)

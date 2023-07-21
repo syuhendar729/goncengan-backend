@@ -3,9 +3,9 @@ const { getAuth } = require('firebase-admin/auth')
 const userAuth = async (req, res, next) => {
     const idToken = req.headers['authorization']
     if (idToken) {
-        getAuth().verifyIdToken(idToken)
+        getAuth()
+            .verifyIdToken(idToken)
             .then((decodedToken) => {
-                const uid = decodedToken.uid
                 next()
             })
             .catch((err) => {
