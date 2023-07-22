@@ -1,6 +1,6 @@
 # APLIKASI GONCENGAN (BACK-END)
 
-- Jalankan di server local
+-   Jalankan di server local
 
 ```bash
 git clone <project-ini>
@@ -8,11 +8,11 @@ npm install
 npm run dev
 ```
 
-- Buka `http://localhost:3000`
+-   Buka `http://localhost:3000`
 
-- Akses API dengan postman ke routing di bawah.
+-   Akses API dengan postman ke routing di bawah.
 
-- Akses routing berikut dengan menggunakan `Authorization` sebagai Headers dan `token` login sebagai value untuk melakukan request API:
+-   Akses routing berikut dengan menggunakan `Authorization` sebagai Headers dan `token` login sebagai value untuk melakukan request API:
 
 ```bash
 GET http://localhost:3000/api/user          (get all user)
@@ -22,7 +22,7 @@ PUT http://localhost:3000/api/user/update   (update user)
 DELETE (Fitur dinonaktifkan)
 ```
 
--  Model Data di Firestore `id == uid`
+-   Model Data di Firestore `id == uid`
 
 ```json
 "PoDrDYwKQ1hrcsdv8aQ1TNitcKZ2": {
@@ -33,8 +33,8 @@ DELETE (Fitur dinonaktifkan)
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
+        "lat": 0,
+        "long": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",
@@ -43,13 +43,17 @@ DELETE (Fitur dinonaktifkan)
 }
 ```
 
-- Model Data di Firebase Authentication
+-   Model Data di Firebase Authentication
 
 ```json
-{ "email": "akun@mail.com", "password": "12345678", "displayName": "Nama di Firestore" }
+{
+    "email": "akun@mail.com",
+    "password": "12345678",
+    "displayName": "Nama di Firestore"
+}
 ```
 
-- Model Data inputan untuk `create` user (untuk dicoba di postman)
+-   Model Data inputan untuk `create` user (untuk dicoba di postman)
 
 ```json
 {
@@ -60,8 +64,8 @@ DELETE (Fitur dinonaktifkan)
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
+        "lat": 0,
+        "long": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",
@@ -70,8 +74,7 @@ DELETE (Fitur dinonaktifkan)
 }
 ```
 
-
-- Model Data inputan untuk `update` user tanpa `password` (untuk dicoba di postman)
+-   Model Data inputan untuk `update` user tanpa `password` (untuk dicoba di postman)
 
 ```json
 {
@@ -81,8 +84,8 @@ DELETE (Fitur dinonaktifkan)
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
+        "lat": 0,
+        "long": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",

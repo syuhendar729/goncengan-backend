@@ -1,5 +1,5 @@
 const { initializeApp, cert } = require('firebase-admin/app')
-const { getFirestore } = require('firebase-admin/firestore')
+const { getFirestore, GeoPoint } = require('firebase-admin/firestore')
 
 const serviceAccount =
     process.env.FIREBASE_SECRET || require('../.cred/ServiceAccount.json')
@@ -26,18 +26,24 @@ const userFirestoreDetail = async (req, res) => {
         .catch((err) => res.send({ msg: 'User tidak ditemukan!' }))
 }
 
-const userFirestoreCreate = (data, uid) => {
-    Users.doc(uid).set({ ...data, uid })
-}
-
-const userFirestoreUpdate = async (data, uid) => {
-	const user = Users.doc(uid)
+const userFirestoreCreate = async (data, uid) => {
 	try {
-		const res = await user.update({ ...data, uid })
-		return res
+		data.geolocation = new GeoPoint(data.geolocation.lat, data.geolocation.long)
+		await Users.doc(uid).set({ ...data, uid })
 	} catch (err) {
 		throw err
 	}
+}
+
+const userFirestoreUpdate = async (data, uid) => {
+    const user = Users.doc(uid)
+    try {
+		data.geolocation = new GeoPoint(data.geolocation.lat, data.geolocation.long)
+        const res = await user.update({ ...data, uid })
+        return res
+    } catch (err) {
+        throw err
+    }
 }
 
 module.exports = {
@@ -46,6 +52,3 @@ module.exports = {
     userFirestoreCreate,
     userFirestoreUpdate,
 }
-
-
-

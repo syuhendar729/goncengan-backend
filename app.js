@@ -3,8 +3,14 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 3000
 const corsOptions = { origin: '*' }
-const { userFirestore, userFirestoreDetail } = require('./controllers/userFirestoreController')
-const { userAuthCreate, userAuthUpdate } = require('./controllers/userAuthController')
+const {
+    userFirestore,
+    userFirestoreDetail,
+} = require('./controllers/userFirestoreController')
+const {
+    userAuthCreate,
+    userAuthUpdate,
+} = require('./controllers/userAuthController')
 
 const { userAuth } = require('./middlewares/userAuth')
 const user = require('express').Router()
