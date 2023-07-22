@@ -1,29 +1,47 @@
-const { initializeApp, cert } = require('firebase-admin/app')
 const { getFirestore, GeoPoint } = require('firebase-admin/firestore')
+const configFirebase = require('../config/configFirebase')
+const app = configFirebase()
 
-const serviceAccount =
-    process.env.FIREBASE_SECRET || require('../.cred/ServiceAccount.json')
-initializeApp({ credential: cert(serviceAccount) })
 const db = getFirestore()
 const Users = db.collection('users')
 
 // === CRUD ===
 
 const userFirestore = async (req, res) => {
-    const result = []
-    const users = await Users.get()
-    users.forEach((doc) => {
-        result.push({ id: doc.id, ...doc.data() })
-    })
-    res.send(result)
+	try {
+		const result = []
+		const users = await Users.get()
+		users.forEach((doc) => {
+			result.push({ id: doc.id, ...doc.data() })
+		})
+		res.send(result)
+	} catch (err) {
+		res.status(500).json({ msg: 'Gagal mengambil data users!', err })
+	}
 }
 
 const userFirestoreDetail = async (req, res) => {
-    const user = Users.doc(req.params.id)
-    await user
-        .get()
-        .then((doc) => res.send(doc.data()))
-        .catch((err) => res.send({ msg: 'User tidak ditemukan!' }))
+	try {
+		const user = await Users.doc(req.uid).get()
+		if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
+		else res.send(user.data())
+	} catch (err) {
+		res.status(500).json({ msg: 'Gagal mengambil data user!', err })
+	}
+ }
+
+const userAnotherFirestoreDetail = async (req, res) => {
+	try {
+		const user = await Users.doc(req.params.id).get()
+		if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
+		else {
+			const {name, urlToAvatar, formattedLocation} = { ...user.data() }
+			res.send({name, urlToAvatar, formattedLocation})
+		} 
+	} catch (err) {
+		console.error(err);;
+		res.status(500).json({ msg: 'Gagal mengambil data user!', err })
+	}
 }
 
 const userFirestoreCreate = async (data, uid) => {
@@ -49,6 +67,7 @@ const userFirestoreUpdate = async (data, uid) => {
 module.exports = {
     userFirestore,
     userFirestoreDetail,
+	userAnotherFirestoreDetail,
     userFirestoreCreate,
     userFirestoreUpdate,
 }

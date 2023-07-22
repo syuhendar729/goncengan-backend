@@ -15,11 +15,11 @@ npm run dev
 -   Akses routing berikut dengan menggunakan `Authorization` sebagai Headers dan `token` login sebagai value untuk melakukan request API:
 
 ```bash
-GET http://localhost:3000/api/user          (get all user)
-GET http://localhost:3000/api/user/:id      (get user by id)
-POST http://localhost:3000/api/user/create  (create user or registration)
-PUT http://localhost:3000/api/user/update   (update user)
-DELETE (Fitur dinonaktifkan)
+GET     | http://localhost:3000/api/user                (get all user)
+GET     | http://localhost:3000/api/user/detail         (get user self)
+GET     | http://localhost:3000/api/user/detail/:id     (get user by id)
+POST    | http://localhost:3000/api/user/create         (create user or registration)
+PUT     | http://localhost:3000/api/user/update         (update user whitout password)
 ```
 
 -   Model Data di Firestore `id == uid`

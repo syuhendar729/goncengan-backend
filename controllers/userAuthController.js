@@ -7,28 +7,20 @@ const {
 const userAuthCreate = async (req, res) => {
     const { name, email, password } = req.body
     if (name && email && password) {
-		getAuth().createUser({ email, password, displayName: name })
-			.then(userRecord => {
-				const { password, ...data } = req.body
-				userFirestoreCreate(data, userRecord.uid)
-					.then(() => res.send({ msg: 'Berhasil create user!', uid: userRecord.uid }))
-			})
-			.catch(err => res.send({ msg: 'Gagal create user!', err }))
-		/* try {
+		try {
 			const userRecord = await getAuth().createUser({ email, password, displayName: name })
-			const { password, ...data } = req.body
+			const data = { ...req.body }
+			delete data.password
 			await userFirestoreCreate(data, userRecord.uid)
 			res.json({ msg: 'Berhasil create user!', data })
-
 		} catch (err) {
+			console.error(err);
 			res.status(500).json({ msg: `Gagal create user!`, err })
-		} */
+		}
     } else res.json({ msg: 'Gagal tidak ada data!' })
 }
 
 const userAuthUpdate = async (req, res) => {
-    // const idToken = req.headers['authorization']
-    // const decodedToken = await getAuth().verifyIdToken(idToken)
     const uid = req.uid
     const { email, name, ...data } = req.body
     try {
@@ -44,3 +36,5 @@ const userAuthUpdate = async (req, res) => {
 }
 
 module.exports = { userAuthCreate, userAuthUpdate }
+
+

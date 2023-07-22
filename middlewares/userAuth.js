@@ -10,9 +10,9 @@ const userAuth = async (req, res, next) => {
             req.uid = decodedToken.uid
             next()
         } catch (err) {
-            res.status(403).send({ msg: 'ID Token salah!', err })
+            res.status(401).send({ msg: 'ID Token salah!', err })
         }
-    } else res.send({ msg: 'ID Token tidak ada!' })
+    } else res.status(401).send({ msg: 'ID Token tidak ada!' })
 }
 
 module.exports = { userAuth }

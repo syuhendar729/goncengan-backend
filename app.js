@@ -6,6 +6,7 @@ const corsOptions = { origin: '*' }
 const {
     userFirestore,
     userFirestoreDetail,
+	userAnotherFirestoreDetail
 } = require('./controllers/userFirestoreController')
 const {
     userAuthCreate,
@@ -21,9 +22,10 @@ app.use('/api/user', user)
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
 
-user.get('/', userFirestore)
+user.get('/', userAuth, userFirestore)
+user.get('/detail', userAuth, userFirestoreDetail)
+user.get('/detail/:id', userAuth, userAnotherFirestoreDetail)
 user.post('/create', userAuthCreate)
-user.get('/:id', userAuth, userFirestoreDetail)
 user.put('/update', userAuth, userAuthUpdate)
 
 app.listen(port, (req, res) => {
