@@ -14,9 +14,3 @@ const serviceAccount = {
 
 module.exports = serviceAccount
 
-/* const { get } = require('@vercel/edge-config')
-const middleware = async (req, res, next) => {
-	const vercelFirebaseSecret = await get('FIREBASE_SECRET')
-	console.log(FIREBASE_SECRET);
-	next()
-} */

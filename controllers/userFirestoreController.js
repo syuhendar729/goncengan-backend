@@ -40,13 +40,13 @@ const userAnotherFirestoreDetail = async (req, res) => {
 		} 
 	} catch (err) {
 		console.error(err);;
-		res.status(500).json({ msg: 'Gagal mengambil data user!', err })
+		res.status(400).json({ msg: 'Gagal mengambil data user!', err })
 	}
 }
 
 const userFirestoreCreate = async (data, uid) => {
 	try {
-		data.geolocation = new GeoPoint(data.geolocation.lat, data.geolocation.long)
+		data.geolocation = new GeoPoint(data.geolocation._latitude, data.geolocation._longitude)
 		await Users.doc(uid).set({ ...data, uid })
 	} catch (err) {
 		throw err
@@ -56,7 +56,7 @@ const userFirestoreCreate = async (data, uid) => {
 const userFirestoreUpdate = async (data, uid) => {
     const user = Users.doc(uid)
     try {
-		data.geolocation = new GeoPoint(data.geolocation.lat, data.geolocation.long)
+		data.geolocation = new GeoPoint(data.geolocation._latitude, data.geolocation._longitude)
         const res = await user.update({ ...data, uid })
         return res
     } catch (err) {

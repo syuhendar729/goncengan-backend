@@ -33,8 +33,8 @@ PUT     | http://localhost:3000/api/user/update         (update user whitout pas
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "lat": 0,
-        "long": 0
+        "_latitude": 0,
+        "_longitude": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",
@@ -64,8 +64,8 @@ PUT     | http://localhost:3000/api/user/update         (update user whitout pas
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "lat": 0,
-        "long": 0
+        "_latitude": 0,
+        "_longitude": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",
@@ -84,8 +84,8 @@ PUT     | http://localhost:3000/api/user/update         (update user whitout pas
     "urlToStudentCard": "ktm.jpg",
     "urlToAvatar": "profile.jpg",
     "geolocation": {
-        "lat": 0,
-        "long": 0
+        "_latitude": 0,
+        "_longitude": 0
     },
     "formattedLocation": "Way Huwi, Bandar Lampung",
     "fcmToken": "Null",
