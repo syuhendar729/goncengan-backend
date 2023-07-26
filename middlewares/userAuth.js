@@ -5,7 +5,7 @@ const userAuth = async (req, res, next) => {
 
     if (bearerToken) {
         try {
-			const token = bearerToken.split(' ')[1]
+            const token = bearerToken.split(' ')[1]
             const decodedToken = await getAuth().verifyIdToken(token)
             req.uid = decodedToken.uid
             next()
