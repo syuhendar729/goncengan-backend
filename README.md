@@ -20,26 +20,26 @@ GET     | http://localhost:3000/api/user/detail         (get user self)
 GET     | http://localhost:3000/api/user/detail/:id     (get user by id)
 POST    | http://localhost:3000/api/user/create         (create user or registration)
 PUT     | http://localhost:3000/api/user/update         (update user whitout password)
+POST    | http://localhost:3000/api/order/driver        (order driver)
 ```
 
 -   Model Data di Firestore `id == uid`
 
 ```json
-"PoDrDYwKQ1hrcsdv8aQ1TNitcKZ2": {
-    "uid": "PoDrDYwKQ1hrcsdv8aQ1TNitcKZ2",
+"YMYJ0g8D7JegxPHW6ZkCrmeevL53": {
+    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
-    "paySync": false,
-    "email": "syuhendar@mail.com",
-    "urlToStudentCard": "ktm.jpg",
-    "urlToAvatar": "profile.jpg",
-    "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
-    },
-    "formattedLocation": "Way Huwi, Bandar Lampung",
-    "fcmToken": "Null",
+    "role": "None",
     "isVerified": false,
-    "name": "Syuhada Rantisi"
+    "name": "Akun Satu",
+    "avatar": "kancil",
+    "urlToStudentCard": "ktm.jpg",
+    "email": "akun1@mail.com",
+    "address": {
+        "formattedAddress": "Null",
+        "latitude": -7.597,
+        "longitude": 112.103
+    }
 }
 ```
 
@@ -57,20 +57,19 @@ PUT     | http://localhost:3000/api/user/update         (update user whitout pas
 
 ```json
 {
+    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
-    "paySync": false,
-    "email": "syuhendar@mail.com",
-    "password": "12345678",
-    "urlToStudentCard": "ktm.jpg",
-    "urlToAvatar": "profile.jpg",
-    "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
-    },
-    "formattedLocation": "Way Huwi, Bandar Lampung",
-    "fcmToken": "Null",
+    "role": "None",
     "isVerified": false,
-    "name": "Syuhada Rantisi"
+    "name": "Akun Satu",
+    "avatar": "kancil",
+    "urlToStudentCard": "ktm.jpg",
+    "email": "akun1@mail.com",
+    "password": "12345678",
+    "address": {
+        "formattedAddress": "Null",
+        "latitude": -7.597,
+        "longitude": 112.103
 }
 ```
 
@@ -78,18 +77,44 @@ PUT     | http://localhost:3000/api/user/update         (update user whitout pas
 
 ```json
 {
+    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
-    "paySync": false,
-    "email": "syuhendar@mail.com",
-    "urlToStudentCard": "ktm.jpg",
-    "urlToAvatar": "profile.jpg",
-    "geolocation": {
-        "_latitude": 0,
-        "_longitude": 0
-    },
-    "formattedLocation": "Way Huwi, Bandar Lampung",
-    "fcmToken": "Null",
+    "role": "None",
     "isVerified": false,
-    "name": "Syuhada Rantisi"
+    "name": "Akun Satu",
+    "avatar": "kancil",
+    "urlToStudentCard": "ktm.jpg",
+    "email": "akun1@mail.com",
+    "address": {
+        "formattedAddress": "Null",
+        "latitude": -7.597,
+        "longitude": 112.103
+    }
+} ```
+
+- Input data booking (mileage = jarak ke lokasi dalam meter)
+
+```json
+{
+    "mileage": 500
 }
 ```
+Contoh respon yang dihasilkan adalah `price` dan array `drivers` terdekat (distance = jarak dari driver ke pengemudi)
+```json
+{
+    "price": 2000,
+    "drivers": [
+        {
+            "name": "Nama Driver",
+            "avatar": "kancil",
+            "address": {
+                "formattedAddress": "C433+4HF Kutorejo, Nganjuk Regency, East Java, Indonesia",
+                "latitude": -7.597191,
+                "longitude": 112.1039184
+            },
+            "distance": 103.54494171950418
+        },    
+    ]
+}
+```
+

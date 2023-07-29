@@ -83,6 +83,16 @@ const getUsersWhere = async (key, assign, value) => {
     }
 }
 
+const getUserById = async (id) => {
+    try {
+        const user = await Users.doc(id).get()
+        if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
+        else return user.data()
+    } catch (err) {
+        throw err
+    }
+}
+
 module.exports = {
     userFirestore,
     userFirestoreDetail,
@@ -90,4 +100,5 @@ module.exports = {
     userFirestoreCreate,
     userFirestoreUpdate,
     getUsersWhere,
+    getUserById,
 }

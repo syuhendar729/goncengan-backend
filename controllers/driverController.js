@@ -9,12 +9,11 @@ const calculateDistance = (lat1, long1, lat2, long2) => {
                 Math.cos((lat1 * Math.PI) / 180) *
                     Math.cos((lat2 * Math.PI) / 180) *
                     Math.cos(((long1 - long2) * Math.PI) / 180),
-        ) *
-        (radius / 1000) // Konversi ke kilometer
-    return distance
+        ) * radius
+    return distance // Dalam meter
 }
 
-const resultDriver = async (maxDistance, passenger) => {
+const resultDriver = async (passenger) => {
     try {
         const result = []
         const drivers = await getUsersWhere('role', '==', 'driver')
@@ -25,8 +24,9 @@ const resultDriver = async (maxDistance, passenger) => {
                 driver.address.latitude,
                 driver.address.longitude,
             )
-            if (distance <= maxDistance)
-                result.push({ name: driver.name, distance })
+			const { name, address, avatar } = driver
+            if (distance <= 2000)
+                result.push({ name, avatar, address, distance })
         })
         return result
     } catch (err) {
