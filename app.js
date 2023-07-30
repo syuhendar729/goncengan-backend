@@ -14,7 +14,7 @@ const {
     userAuthUpdate,
 } = require('./controllers/userAuthController')
 const createTransaction = require('./controllers/midtransController')
-const { bookingRoomResult } = require('./controllers/bookingController')
+const { bookingRoomResult, bookingResult} = require('./controllers/bookingController')
 
 const { userAuth } = require('./middlewares/userAuth')
 const user = require('express').Router()
@@ -31,6 +31,7 @@ app.use('/api/order', order)
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
 
 order.post('/driver', userAuth, bookingRoomResult)
+order.post('/pickdriver', userAuth, bookingResult)
 // order.post('/offering', userAuth, offeringRoom)
 
 user.get('/', userAuth, userFirestore)
