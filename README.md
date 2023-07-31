@@ -38,20 +38,20 @@ POST | http://localhost:3000/api/order/driver        (order driver)
 POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 ```
 -----
-### C. Model Data dan Inputan
+### C. Model Data, Request, dan Respon
 
-1. Model Data di Firestore `id == uid`
+1. Model Data di Firestore:
    
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
-| `id`          | string | Users `id == uid`               |
-| `role`        | string | `driver`, `user` dan, `None`    |
+| `id`          | string | `id == uid` dengan uid dibuat oleh Firebase Auth              |
+| `role`        | string | `driver`, `user` dan, `none`    |
 
 ```json
-"YMYJ0g8D7JegxPHW6ZkCrmeevL53": {
-    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
+"idDefaultDibuat": {
+    "uid": "uidDefaultDibuat",
     "nim": "122140000",
-    "role": "None",
+    "role": "none",
     "isVerified": false,
     "name": "Akun Satu",
     "avatar": "kancil",
@@ -65,7 +65,7 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 }
 ```
 
-2. Model Data di Firebase Authentication
+2. Model Data di Firebase Authentication:
 
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
@@ -79,18 +79,18 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 }
 ```
 
-3. Model Data inputan untuk `create` user (untuk dicoba di postman)
+3. Format `req.body` untuk `create` user (coba di postman)
 
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
 | `uid`          | string | default berdasarkan `id`              |
-| `role`        | string | `driver`, `user` dan, `None`    |
+| `role`        | string | `driver`, `passenger`, dan `none`    |
 
 ```json
 {
     "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
-    "role": "None",
+    "role": "none",
     "isVerified": false,
     "name": "Akun Satu",
     "avatar": "kancil",
@@ -104,17 +104,17 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 }
 ```
 
-4. Model Data inputan untuk `update` user tanpa `password` (untuk dicoba di postman)
+4. Format `req.body` untuk `update` user tanpa `password` (coba di postman)
 
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
-| `role`        | string | default awal `None`    |
+| `role`        | string | default awal `none`    |
 
 ```json
 {
     "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
-    "role": "None",
+    "role": "none",
     "isVerified": false,
     "name": "Akun Satu",
     "avatar": "kancil",
@@ -128,7 +128,7 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 }
 ```
 
-5. Input data booking (`mileage` = jarak ke lokasi dalam meter)
+5. Format `req.body` untuk `order/driver` sebagai berikut:
 
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
@@ -136,23 +136,22 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 ```json
 {
-    "mileage": 500
+    "mileage": 1000
 }
 ```
 
-6. Respon yang dihasilkan adalah `price` dan array `drivers` terdekat
-7. `distance` adalah jarak dari driver ke pengemudi
+6. Respon adalah `price` dan array `drivers` terdekat (Radius 2Km)
+7. `distance` adalah jarak dari passenger ke driver tersebut
 
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `distance`    | string | Jarak dari pengemudi ke penumpang               |
+Note: 
+- `price` dihasilkan dari `Jarak per 500 m * 2000`
 
 ```json
 {
-    "price": 2000,
+    "price": 4000,
     "drivers": [
         {
-            "id": "idDriver",
+            "id": "idDriverTerdekat",
             "name": "Nama Driver",
             "avatar": "kancil",
             "address": {
@@ -166,15 +165,15 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 }
 ```
 
-8. Akses `pickdriver` jika pengguna telah menentukan pilihan driver yang tepat
+8. Format `req.body` untuk `order/pickdriver` jika pengguna telah menentukan pilihan driver seperti berikur:
 
 ```json
 {
-    "idDriver": "idDriver-ambil",
-    "mileage": 1200
+    "idDriver": "idDriverYangDipilih",
+    "mileage": 1000
 }
 ```
-9. Respon:
+9. Respon dari `pickdriver`:
 
 ```json
 {
