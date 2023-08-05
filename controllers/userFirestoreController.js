@@ -1,7 +1,4 @@
 const { getFirestore } = require('firebase-admin/firestore')
-const configFirebase = require('../config/configFirebase')
-const app = configFirebase()
-
 const db = getFirestore()
 const Users = db.collection('users')
 
@@ -46,11 +43,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
 
 const userFirestoreCreate = async (data, uid) => {
     try {
-        /* data.geolocation = new GeoPoint(
-            data.geolocation._latitude,
-            data.geolocation._longitude,
-        ) */
-        await Users.doc(uid).set({ ...data, uid })
+        await Users.doc(uid).set({ ...data, uid, role: "none" })
     } catch (err) {
         throw err
     }
@@ -59,10 +52,6 @@ const userFirestoreCreate = async (data, uid) => {
 const userFirestoreUpdate = async (data, uid) => {
     const user = Users.doc(uid)
     try {
-        data.geolocation = new GeoPoint(
-            data.geolocation._latitude,
-            data.geolocation._longitude,
-        )
         const res = await user.update({ ...data, uid })
         return res
     } catch (err) {

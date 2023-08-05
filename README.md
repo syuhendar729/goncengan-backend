@@ -83,12 +83,10 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 | Parameter     | Type   | Description                     |
 |---------------|--------|---------------------------------|
-| `uid`          | string | default berdasarkan `id`              |
 | `role`        | string | `driver`, `passenger`, dan `none`    |
 
 ```json
 {
-    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
     "role": "none",
     "isVerified": false,
@@ -112,7 +110,6 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 ```json
 {
-    "uid": "YMYJ0g8D7JegxPHW6ZkCrmeevL53",
     "nim": "122140000",
     "role": "none",
     "isVerified": false,
