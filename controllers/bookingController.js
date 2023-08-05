@@ -1,3 +1,6 @@
+const { getFirestore, Timestamp } = require('firebase-admin/firestore')
+const db = getFirestore()
+const BookingRoom = db.collection('booking_room')
 const { resultDriver } = require('./driverController')
 const { getUserById } = require('./userFirestoreController')
 
@@ -5,7 +8,7 @@ const userSend = (user) => {
 	return {
 		name: user.name,
 		avatar: user.avatar,
-		address: user.address
+		fcmToken: null
 	}
 }
 
@@ -29,11 +32,21 @@ const bookingRoomResult = async (req, res) => {
 
 const bookingResult = async (req, res) => {
 	try {
+		// const { idDriver, mileage, departureLocation, destinationLocation } = req.body
 		const passenger = await getUserById(req.uid)
 		const driver = await getUserById(req.body.idDriver)
         const price = bookingPrice(req.body.mileage)
 		const resDriver = userSend(driver)
 		const resPass = userSend(passenger)
+		await BookingRoom.doc().set({ 
+			departureLocation: req.body.departureLocation, 
+			destinationLocation: req.body.destinationLocation,
+			driver: resDriver, passenger: resPass,
+			isPayed: false, isBooked: false, 
+			price: null, paymentId: null,
+			bookingId: null, chatRoomId: null,
+			departureDate: Timestamp.fromDate(new Date())
+		})
 		res.send({ price, passenger: resPass, driver: resDriver })
 	} catch (err) {
 		console.error(err)

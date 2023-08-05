@@ -167,31 +167,32 @@ Note:
 ```json
 {
     "idDriver": "idDriverYangDipilih",
-    "mileage": 1000
+    "mileage": 1000,
+    "departureLocation": {
+        "formattedAddress": "null",
+        "latitude": 0,
+        "longitude": 0
+    },
+    "destinationLocation": {
+        "formattedAddress": "null",
+        "latitude": 0,
+        "longitude": 0
+    }
 }
 ```
 9. Respon dari `pickdriver`:
 
 ```json
 {
-    "price": 6000,
+    "price": 4000,
     "passenger": {
         "name": "Akun Satu",
         "avatar": "kancil",
-        "address": {
-            "formattedAddress": "Null",
-            "latitude": -7.597,
-            "longitude": 112.103
-        }
+        "fcmToken": null
     },
     "driver": {
         "name": "test4",
         "avatar": "kancil",
-        "address": {
-            "formattedAddress": "C433+4HF Kutorejo, Nganjuk Regency, East Java, Indonesia",
-            "latitude": -7.597191,
-            "longitude": 112.1039184
-        }
+        "fcmToken": null
     }
-}
-```
+}```
