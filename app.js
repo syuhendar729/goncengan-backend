@@ -14,7 +14,7 @@ const {
     userAuthCreate,
     userAuthUpdate,
 } = require('./controllers/userAuthController')
-const createTransaction = require('./controllers/midtransController')
+const createTransaction = require('./controllers/paymentController')
 const { bookingRoomResult, bookingResult} = require('./controllers/bookingController')
 
 const { userAuth } = require('./middlewares/userAuth')
@@ -33,7 +33,6 @@ app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
 
 order.post('/driver', userAuth, bookingRoomResult)
 order.post('/pickdriver', userAuth, bookingResult)
-// order.post('/offering', userAuth, offeringRoom)
 
 user.get('/', userAuth, userFirestore)
 user.get('/detail', userAuth, userFirestoreDetail)
@@ -41,7 +40,7 @@ user.get('/detail/:id', userAuth, userAnotherFirestoreDetail)
 user.post('/create', userAuthCreate)
 user.put('/update', userAuth, userAuthUpdate)
 
-pay.post('/', createTransaction)
+pay.post('/create-transaction', userAuth, createTransaction)
 
 // == Error Handling ==
 app.use((req, res, next) => {
