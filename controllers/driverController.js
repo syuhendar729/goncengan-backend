@@ -24,7 +24,7 @@ const resultDriver = async (passenger) => {
                 driver.address.latitude,
                 driver.address.longitude,
             )
-			const { id, name, address, avatar } = driver
+            const { id, name, address, avatar } = driver
             if (distance <= 2000)
                 result.push({ id, name, avatar, address, distance })
         })

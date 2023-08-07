@@ -14,8 +14,16 @@ const {
     userAuthCreate,
     userAuthUpdate,
 } = require('./controllers/userAuthController')
-const createTransaction = require('./controllers/paymentController')
-const { bookingRoomResult, bookingResult} = require('./controllers/bookingController')
+const {
+    createTransaction,
+    callbackTransaction,
+    notificationTransaction,
+    getStatusTransaction,
+} = require('./controllers/paymentController')
+const {
+    bookingRoomResult,
+    bookingResult,
+} = require('./controllers/bookingController')
 
 const { userAuth } = require('./middlewares/userAuth')
 const user = require('express').Router()
@@ -30,17 +38,20 @@ app.use('/api/order', order)
 
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
-
-order.post('/driver', userAuth, bookingRoomResult)
-order.post('/pickdriver', userAuth, bookingResult)
-
+// === USERS ===
 user.get('/', userAuth, userFirestore)
 user.get('/detail', userAuth, userFirestoreDetail)
 user.get('/detail/:id', userAuth, userAnotherFirestoreDetail)
 user.post('/create', userAuthCreate)
 user.put('/update', userAuth, userAuthUpdate)
-
+// === ORDER ===
+order.post('/driver', userAuth, bookingRoomResult)
+order.post('/pickdriver', userAuth, bookingResult)
+// === PAYMENT ===
 pay.post('/create-transaction', userAuth, createTransaction)
+pay.get('/callback-transaction', callbackTransaction)
+pay.post('/notification-transaction', notificationTransaction)
+pay.get('/check-transaction/:orderId', getStatusTransaction)
 
 // == Error Handling ==
 app.use((req, res, next) => {

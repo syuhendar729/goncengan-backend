@@ -1,19 +1,26 @@
 # APLIKASI GONCENGAN (BACK-END)
------
+
+---
+
 ### A. Instalasi
+
 Install `nodejs` dan dependensi lainnya seperti biasa
+
 ```bash
 git clone <project-ini>
 cd <project-ini>
 npm install
 npm run dev
 ```
------
+
+---
+
 ### B. Penggunaan
+
 1. Buka `http://localhost:3000`
 2. Buka Postman atau tools API Testing lainnya
 3. Lakukan login di terminal seperti ini untuk mendapatkan token (bisa dilakukan lewat front-end atau postman)
-   
+
 ```bash
 curl --location --request POST 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY_FIREBASE]
 ' \
@@ -24,7 +31,7 @@ curl --location --request POST 'https://identitytoolkit.googleapis.com/v1/accoun
     "returnSecureToken": true
 }'
 ```
-  
+
 5. Gunakan **Header** `Authorization: Bearer {token}` untuk melakukan request API
 6. Akses routing di bawah ini sesuai kebutuhan
 
@@ -37,15 +44,17 @@ PUT  | http://localhost:3000/api/user/update         (update user whitout passwo
 POST | http://localhost:3000/api/order/driver        (order driver)
 POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 ```
------
+
+---
+
 ### C. Model Data, Request, dan Respon
 
 1. Model Data di Firestore:
-   
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `id`          | string | `id == uid` dengan uid dibuat oleh Firebase Auth              |
-| `role`        | string | `driver`, `user` dan, `none`    |
+
+| Parameter | Type   | Description                                      |
+| --------- | ------ | ------------------------------------------------ |
+| `id`      | string | `id == uid` dengan uid dibuat oleh Firebase Auth |
+| `role`    | string | `driver`, `user` dan, `none`                     |
 
 ```json
 "idDefaultDibuat": {
@@ -67,9 +76,9 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 2. Model Data di Firebase Authentication:
 
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `displayName` | string | Nama yang nanti ditampilkan     |
+| Parameter     | Type   | Description                 |
+| ------------- | ------ | --------------------------- |
+| `displayName` | string | Nama yang nanti ditampilkan |
 
 ```json
 {
@@ -81,9 +90,9 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 3. Format `req.body` untuk `create` user (coba di postman)
 
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `role`        | string | `driver`, `passenger`, dan `none`    |
+| Parameter | Type   | Description                       |
+| --------- | ------ | --------------------------------- |
+| `role`    | string | `driver`, `passenger`, dan `none` |
 
 ```json
 {
@@ -104,9 +113,9 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 4. Format `req.body` untuk `update` user tanpa `password` (coba di postman)
 
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `role`        | string | default awal `none`    |
+| Parameter | Type   | Description         |
+| --------- | ------ | ------------------- |
+| `role`    | string | default awal `none` |
 
 ```json
 {
@@ -127,9 +136,9 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 
 5. Format `req.body` untuk `order/driver` sebagai berikut:
 
-| Parameter     | Type   | Description                     |
-|---------------|--------|---------------------------------|
-| `mileage`     | int | Jarak dalam meter               |
+| Parameter | Type | Description       |
+| --------- | ---- | ----------------- |
+| `mileage` | int  | Jarak dalam meter |
 
 ```json
 {
@@ -140,8 +149,9 @@ POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
 6. Respon adalah `price` dan array `drivers` terdekat (Radius 2Km)
 7. `distance` adalah jarak dari passenger ke driver tersebut
 
-Note: 
-- `price` dihasilkan dari `Jarak per 500 m * 2000`
+Note:
+
+-   `price` dihasilkan dari `Jarak per 500 m * 2000`
 
 ```json
 {
@@ -157,7 +167,7 @@ Note:
                 "longitude": 112.1039184
             },
             "distance": 103.54494171950418
-        },    
+        }
     ]
 }
 ```
@@ -180,6 +190,7 @@ Note:
     }
 }
 ```
+
 9. Respon dari `pickdriver`:
 
 ```json
@@ -195,4 +206,33 @@ Note:
         "avatar": "kancil",
         "fcmToken": null
     }
-}```
+}
+```
+
+10. Payment
+    -   Create transaction:
+    -   Callback transaction:
+    -   Notification transaction:
+
+```bash
+{
+  transaction_type: 'on-us',
+  transaction_time: '2023-08-07 09:13:30',
+  transaction_status: 'settlement',
+  transaction_id: 'f4cd5c82-0f42-4f10-9920-cea5264d36c9',
+  status_message: 'midtrans payment notification',
+  status_code: '200',
+  signature_key: 'f6dd78805de670806b3d1415fdc0c10b976ea8fc7764fdc99f390f77ad1a5fd075307277089b60a6ba1a60cee4bc47363efeaa17993df969868e9de57ae9c4fa',
+  settlement_time: '2023-08-07 09:13:49',
+  reference_id: 'fac1099e-99f9-475c-96f0-235a54d5d2f3',
+  payment_type: 'qris',
+  order_id: 'testing_id_00003',
+  merchant_id: 'G789012978',
+  issuer: 'gopay',
+  gross_amount: '3000.00',
+  fraud_status: 'accept',
+  expiry_time: '2023-08-07 09:28:30',
+  currency: 'IDR',
+  acquirer: 'gopay'
+}
+```

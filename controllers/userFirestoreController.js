@@ -1,6 +1,4 @@
-const { getFirestore } = require('firebase-admin/firestore')
-const db = getFirestore()
-const Users = db.collection('users')
+const Users = require('../instances/firestoreInstance')('users')
 
 // === CRUD ===
 
@@ -43,7 +41,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
 
 const userFirestoreCreate = async (data, uid) => {
     try {
-        await Users.doc(uid).set({ ...data, uid, role: "none" })
+        await Users.doc(uid).set({ ...data, uid, role: 'none' })
     } catch (err) {
         throw err
     }
