@@ -57,30 +57,43 @@ const createTransaction = async (req, res) => {
         const transaction = await snap.createTransaction(
             parameter(req.body, user, docRef.id),
         )
-        const { token, redirect_url } = transaction
-        await docRef.update({ token, redirectUrl: redirect_url })
-        res.send({ msg: 'Berhasil transaksi!', token, redirect_url })
-    } catch (err) {
-        console.error(err)
-        res.status(500).send({ msg: 'Gagal transaksi!', err })
+        const { token, redirect_url: redirectUrl } = transaction
+        await docRef.update({ token, redirectUrl })
+        res.send({
+            message: 'Successfully created transaction!',
+            token,
+            redirectUrl,
+        })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send({
+            message: 'Failed to create transaction!',
+            error,
+        })
     }
 }
 
 const callbackTransaction = async (req, res) => {
     try {
-        const { order_id, transaction_status } = req.query
+        const { order_id, transaction_status: transactionStatus } = req.query
         const docRef = Booking.doc(order_id)
-        await docRef.update({ transactionStatus: transaction_status })
+        await docRef.update({ transactionStatus })
         console.log(req.query)
-        res.send({ ...req.query })
-    } catch (err) {
+        res.send({
+            message: 'Successfully call the API callback!',
+            data: req.query,
+        })
+    } catch (error) {
         console.error(err)
-        res.status(500).send({ msg: 'Callback gagal!', err })
+        res.status(500).send({
+            message: 'Failed to call the API callback!',
+            error,
+        })
     }
 }
 
 const notificationTransaction = async (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     try {
         const {
             order_id,
@@ -100,9 +113,9 @@ const notificationTransaction = async (req, res) => {
                 transactionTime: Timestamp.fromDate(new Date(transaction_time)),
                 expiredTime: Timestamp.fromDate(new Date(expiry_time)),
             })
-        } else throw new Error('Gagal verifikasi data!')
-    } catch (err) {
-        console.error(err)
+        } else throw new Error('Data verification failed!')
+    } catch (error) {
+        console.error(error)
     }
 }
 
@@ -118,9 +131,9 @@ const getStatusTransaction = async (req, res) => {
         }
         const dataStatus = await axios.get(url, config)
         res.send(dataStatus.data)
-    } catch (err) {
-        console.error(err)
-        res.status(500).send({ msg: 'Get status gagal!', err })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send({ message: 'Get status gagal!', error })
     }
 }
 

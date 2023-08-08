@@ -23,9 +23,12 @@ const bookingRoomResult = async (req, res) => {
         const price = bookingPrice(req.body.mileage)
         const drivers = await resultDriver(passenger)
         if (drivers.length != 0) res.send({ price, drivers })
-        else res.send({ drivers: 'Tidak ada driver di sekitar' })
-    } catch (err) {
-        res.send({ err })
+        else res.status(404).send({ drivers: 'No drivers around!' })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send({
+            error: 'An error occurred while processing your request.',
+        })
     }
 }
 
@@ -51,9 +54,11 @@ const bookingResult = async (req, res) => {
             departureDate: Timestamp.fromDate(new Date()),
         })
         res.send({ price, passenger: resPass, driver: resDriver })
-    } catch (err) {
-        console.error(err)
-        res.send({ err })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send({
+            error: 'An error occurred while processing your request.',
+        })
     }
 }
 

@@ -1,7 +1,5 @@
 const Users = require('../instances/firestoreInstance')('users')
 
-// === CRUD ===
-
 const userFirestore = async (req, res) => {
     try {
         const result = []
@@ -10,50 +8,54 @@ const userFirestore = async (req, res) => {
             result.push({ id: doc.id, ...doc.data() })
         })
         res.send(result)
-    } catch (err) {
-        res.status(500).json({ msg: 'Gagal mengambil data users!', err })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Failed to fetch data users!', error })
     }
 }
 
 const userFirestoreDetail = async (req, res) => {
     try {
         const user = await Users.doc(req.uid).get()
-        if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
+        if (!user.exists) res.status(404).json({ message: 'User not found!' })
         else res.send(user.data())
-    } catch (err) {
-        res.status(500).json({ msg: 'Gagal mengambil data user!', err })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Failed to fetch user data!', error })
     }
 }
 
 const userAnotherFirestoreDetail = async (req, res) => {
     try {
         const user = await Users.doc(req.params.id).get()
-        if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
+        if (!user.exists) res.status(404).json({ message: 'User not found!' })
         else {
             const { name, avatar, address } = { ...user.data() }
             res.send({ name, avatar, address })
         }
-    } catch (err) {
-        console.error(err)
-        res.status(400).json({ msg: 'Gagal mengambil data user!', err })
+    } catch (error) {
+        console.error(error)
+        res.status(400).json({ message: 'Failed to fetch user data!', error })
     }
 }
 
 const userFirestoreCreate = async (data, uid) => {
     try {
         await Users.doc(uid).set({ ...data, uid, role: 'none' })
-    } catch (err) {
-        throw err
+    } catch (error) {
+        console.error(error)
+        throw new Error('Failed to create user!')
     }
 }
 
 const userFirestoreUpdate = async (data, uid) => {
-    const user = Users.doc(uid)
     try {
-        const res = await user.update({ ...data, uid })
-        return res
-    } catch (err) {
-        throw err
+        const user = Users.doc(uid)
+        const result = await user.update({ ...data, uid })
+        return result
+    } catch (error) {
+        console.error(error)
+        throw new Error('Failed to update user data!')
     }
 }
 
@@ -64,19 +66,22 @@ const getUsersWhere = async (key, assign, value) => {
         users.forEach((doc) => {
             result.push({ id: doc.id, ...doc.data() })
         })
-        return result
-    } catch (err) {
-        throw err
+        if (users.length != 0) return result
+        else throw new Error('User not found!')
+    } catch (error) {
+        console.error(error)
+        throw new Error('Failed to find user data with key and value!')
     }
 }
 
 const getUserById = async (id) => {
     try {
         const user = await Users.doc(id).get()
-        if (!user.exists) res.status(404).json({ msg: 'User tidak ditemukan!' })
-        else return user.data()
-    } catch (err) {
-        throw err
+        if (!user.exists) throw new Error('User not found!')
+        return user.data()
+    } catch (error) {
+        console.error(error)
+        throw new Error('Failed to find user data by id!')
     }
 }
 

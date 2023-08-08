@@ -16,26 +16,32 @@ const userAuthCreate = async (req, res) => {
             const data = { ...req.body }
             delete data.password
             await userFirestoreCreate(data, userRecord.uid)
-            res.json({ msg: 'Berhasil create user!', data })
-        } catch (err) {
-            console.error(err)
-            res.status(500).json({ msg: `Gagal create user!`, err })
+            res.json({ message: 'Successfully created user!', data })
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ message: `Failed to created user!`, error })
         }
-    } else res.status(400).json({ msg: 'Gagal tidak ada data!' })
+    } else
+        res.status(400).json({
+            message: 'Failed to create user because there is no data!',
+        })
 }
 
 const userAuthUpdate = async (req, res) => {
-    const uid = req.uid
-    const { email, name, ...data } = req.body
     try {
+        const uid = req.uid
         const userRecord = await getAuth().updateUser(uid, {
-            email,
-            displayName: name,
+            email: req.body.email,
+            displayName: req.body.name,
         })
         const result = await userFirestoreUpdate(req.body, uid)
-        res.send({ msg: 'Berhasil update user!', userRecord, res: result })
-    } catch (err) {
-        res.send({ msg: 'Gagal update user!', err })
+        res.send({
+            message: 'Successfully updated the user!',
+            userRecord,
+            result,
+        })
+    } catch (error) {
+        res.send({ message: 'Failed to update user!', error })
     }
 }
 

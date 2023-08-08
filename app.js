@@ -5,53 +5,15 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 3000
 const corsOptions = { origin: '*' }
-const {
-    userFirestore,
-    userFirestoreDetail,
-    userAnotherFirestoreDetail,
-} = require('./controllers/userFirestoreController')
-const {
-    userAuthCreate,
-    userAuthUpdate,
-} = require('./controllers/userAuthController')
-const {
-    createTransaction,
-    callbackTransaction,
-    notificationTransaction,
-    getStatusTransaction,
-} = require('./controllers/paymentController')
-const {
-    bookingRoomResult,
-    bookingResult,
-} = require('./controllers/bookingController')
 
-const { userAuth } = require('./middlewares/userAuth')
-const user = require('express').Router()
-const pay = require('express').Router()
-const order = require('express').Router()
+const mainRoute = require('./routes')
 
 app.use(cors(corsOptions))
 app.use(express.json())
-app.use('/api/user', user)
-app.use('/api/pay', pay)
-app.use('/api/order', order)
 
 // === ROUTING ===
 app.get('/', (req, res) => res.json({ message: 'Welcome to Goncengan App' }))
-// === USERS ===
-user.get('/', userAuth, userFirestore)
-user.get('/detail', userAuth, userFirestoreDetail)
-user.get('/detail/:id', userAuth, userAnotherFirestoreDetail)
-user.post('/create', userAuthCreate)
-user.put('/update', userAuth, userAuthUpdate)
-// === ORDER ===
-order.post('/driver', userAuth, bookingRoomResult)
-order.post('/pickdriver', userAuth, bookingResult)
-// === PAYMENT ===
-pay.post('/create-transaction', userAuth, createTransaction)
-pay.get('/callback-transaction', callbackTransaction)
-pay.post('/notification-transaction', notificationTransaction)
-pay.get('/check-transaction/:orderId', getStatusTransaction)
+app.use(mainRoute)
 
 // == Error Handling ==
 app.use((req, res, next) => {
