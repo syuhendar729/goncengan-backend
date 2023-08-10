@@ -1,5 +1,5 @@
 const express = require('express')
-const { userAuth } = require('../middlewares/userAuth')
+const { userAuth } = require('../middlewares')
 const {
     userFirestore,
     userFirestoreDetail,

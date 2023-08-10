@@ -41,7 +41,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
 
 const userFirestoreCreate = async (data, uid) => {
     try {
-        await Users.doc(uid).set({ ...data, uid, role: 'none' })
+        await Users.doc(uid).set({ ...data, uid, role: 'none', isDisabled: false })
     } catch (error) {
         console.error(error)
         throw new Error('Failed to create user!')
