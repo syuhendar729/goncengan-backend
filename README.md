@@ -35,15 +35,43 @@ curl --location --request POST 'https://identitytoolkit.googleapis.com/v1/accoun
 5. Gunakan **Header** `Authorization: Bearer {token}` untuk melakukan request API
 6. Akses routing di bawah ini sesuai kebutuhan
 
-```bash
-GET  | http://localhost:3000/api/user                (get all user)
-GET  | http://localhost:3000/api/user/detail         (get user self)
-GET  | http://localhost:3000/api/user/detail/:id     (get user by id)
-POST | http://localhost:3000/api/user/create         (create user or registration)
-PUT  | http://localhost:3000/api/user/update         (update user whitout password)
-POST | http://localhost:3000/api/order/driver        (order driver)
-POST | http://localhost:3000/api/order/pickdriver    (choose fix driver)
-```
+- User API:
+
+| Method | URL                                      | Description               |
+|--------|------------------------------------------|---------------------------|
+| GET    | `http://localhost:3000/api/user`           | Get all user              |
+| GET    | `http://localhost:3000/api/user/detail`    | Get user self             |
+| GET    | `http://localhost:3000/api/user/detail/:id`| Get user by id            |
+| POST   | `http://localhost:3000/api/user/create`    | Create user or registration |
+| PUT    | `http://localhost:3000/api/user/update`    | Update user without password |
+
+- Order API:
+  
+| Method | URL                                      | Description               |
+|--------|------------------------------------------|---------------------------|
+| POST   | `http://localhost:3000/api/order/driver`   | Order driver              |
+| POST   | `http://localhost:3000/api/order/pickdriver` | Choose fixed driver      |
+
+- Transaction API:
+  
+| Method | URL                                            | Description                     |
+|--------|------------------------------------------------|---------------------------------|
+| POST   | `http://localhost:3000/api/pay/create-transaction` | Create new transaction          |
+| GET    | `http://localhost:3000/api/pay/finish-transaction` | URL redirect finish transaction |
+| POST   | `http://localhost:3000/api/pay/notification-transaction` | Callback notification midtrans |
+| GET    | `http://localhost:3000/api/pay/check-transaction/:orderId` | Get status transaction by orderId |
+| GET    | `http://localhost:3000/api/pay/error-transaction` | URL redirect error transaction  |
+
+- Wallet API:
+  
+| Method | URL                                      | Description               |
+|--------|------------------------------------------|---------------------------|
+| GET    | `http://localhost:3000/api/wallet/get-balance` | Get balance               |
+| GET    | `http://localhost:3000/api/wallet/get-income` | Get income                |
+| GET    | `http://localhost:3000/api/wallet/get-expense` | Get expense               |
+| GET    | `http://localhost:3000/api/wallet/get-alldata` | Get all data              |
+| POST   | `http://localhost:3000/api/wallet/payout-request` | Payout request            |
+
 
 ---
 
