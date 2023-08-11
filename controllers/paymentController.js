@@ -1,9 +1,9 @@
 const db = require('../instances/firestoreInstance')
-const Payment = db('payment')
 const Transaction = db('transaction')
+const Wallet = db('wallet')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
-const { Timestamp } = require('firebase-admin/firestore')
+const { Timestamp, FieldValue } = require('firebase-admin/firestore')
 const axios = require('axios')
 
 const createTransaction = async (req, res) => {
@@ -71,7 +71,7 @@ const notificationTransaction = async (req, res) => {
 	console.log('Notification Transaction: ', req.body, new Date())
     try {
         const {
-            order_id,
+			order_id: orderId,
             transaction_time,
             transaction_status,
             transaction_id,
@@ -79,10 +79,11 @@ const notificationTransaction = async (req, res) => {
             expiry_time,
             signature_key,
         } = req.body
-		const transDoc = await Transaction.doc(order_id)
+		const transDoc = Transaction.doc(orderId)
 		const transData = await transDoc.get()
-		if (!transData.exists) throw new Error(`Transaction id: ${order_id} not found!`)
-		else if (transData.data().transactionStatus !== 'settlement') {
+		const transactionStatus = transData.data().transactionStatus
+		if (!transData.exists) throw new Error(`Transaction id: ${orderId} not found!`)
+		else if (transactionStatus !== 'settlement') {
 			await transDoc.update({
 				price: parseFloat(gross_amount),
 				transactionId: transaction_id,
@@ -91,6 +92,24 @@ const notificationTransaction = async (req, res) => {
 				expiredTime: Timestamp.fromDate(new Date(expiry_time)),
 			})
 		}
+		const driverId = transData.data().driverId
+		const walletDoc = Wallet.doc(driverId)
+		const walletData = await walletDoc.get()
+
+		if (transaction_status === 'settlement') {
+			if (!walletData.exists) await walletDoc.set({ driverId, balance: 0, dataIncome: [], dataExpense: [] })
+			await walletDoc.update({
+				dataIncome: FieldValue.arrayUnion({ 
+					orderId,
+					amount: parseFloat(gross_amount), 
+					timeDate: Timestamp.fromDate(new Date(transaction_time)) 
+				}),
+			})
+			const walletDataNew = await walletDoc.get()
+			let balance = walletDataNew.data().dataIncome.reduce((total, item) => total + item.amount, 0)
+			await walletDoc.update({ balance })
+		}
+
     } catch (error) {
         console.error(error)
     }
