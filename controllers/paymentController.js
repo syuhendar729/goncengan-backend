@@ -164,6 +164,7 @@ const errorTransaction = async (req, res) => {
         })
     } catch (error) {
         console.error(error)
+        res.status(500).send({ message: "Failed call Error Transaction, can't create new expire transaction", error })
     }
 }
 

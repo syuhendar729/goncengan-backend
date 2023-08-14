@@ -1,5 +1,7 @@
 const express = require('express')
-const { userAuth } = require('../middlewares')
+const validator = require('../instances/validatorInstance')
+const { userAuth } = require('../middlewares/userAuth')
+const { userCreateSchema, userUpdateSchema, userValidator } = require('../middlewares/userValidator')
 const {
     userFirestore,
     userFirestoreDetail,
@@ -12,7 +14,7 @@ const userRoute = express.Router()
 userRoute.route('/').get(userAuth, userFirestore)
 userRoute.route('/detail').get(userAuth, userFirestoreDetail)
 userRoute.route('/detail/:id').get(userAuth, userAnotherFirestoreDetail)
-userRoute.route('/create').post(userAuthCreate)
-userRoute.route('/update').put(userAuth, userAuthUpdate)
+userRoute.route('/create').post(validator.body(userCreateSchema), userValidator, userAuthCreate)
+userRoute.route('/update').put(userAuth, validator.body(userUpdateSchema), userValidator, userAuthUpdate)
 
 module.exports = userRoute

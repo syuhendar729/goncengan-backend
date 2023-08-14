@@ -27,7 +27,8 @@ const bookingRoomResult = async (req, res) => {
     } catch (error) {
         console.error(error)
         res.status(500).send({
-            error: 'An error occurred while processing your request.',
+            message: 'An error occurred while processing your request.',
+            error,
         })
     }
 }
@@ -57,7 +58,8 @@ const bookingResult = async (req, res) => {
     } catch (error) {
         console.error(error)
         res.status(500).send({
-            error: 'An error occurred while processing your request.',
+            message: 'An error occurred while processing your request.',
+            error,
         })
     }
 }

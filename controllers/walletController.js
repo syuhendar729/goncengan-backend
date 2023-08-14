@@ -9,7 +9,7 @@ const getWalletBalance = async (req, res) => {
         res.send({ balance: walletData.data().balance })
     } catch (error) {
         console.error(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 }
 
@@ -20,7 +20,7 @@ const getWalletIncome = async (req, res) => {
         res.send({ dataIncome: walletData.data().dataIncome })
     } catch (error) {
         console.error(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 }
 
@@ -31,7 +31,7 @@ const getWalletExpense = async (req, res) => {
         res.send({ dataExpense: walletData.data().dataExpense })
     } catch (error) {
         console.error(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 }
 
@@ -42,7 +42,7 @@ const getWalletAllData = async (req, res) => {
         res.send({ ...walletData.data() })
     } catch (error) {
         console.error(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 }
 
@@ -59,7 +59,7 @@ const payoutRequest = async (req, res) => {
         res.send({ ...req.body })
     } catch (error) {
         console.error(error)
-        res.send({ error })
+        res.status(500).send({ error })
     }
 }
 

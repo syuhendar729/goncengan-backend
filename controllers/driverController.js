@@ -28,7 +28,7 @@ const resultDriver = async (passenger) => {
         })
         return result
     } catch (err) {
-        throw err
+        throw new Error("Can't result driver")
     }
 }
 

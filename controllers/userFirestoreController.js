@@ -36,7 +36,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
         }
     } catch (error) {
         console.error(error)
-        res.status(400).json({ message: 'Failed to fetch user data!', error })
+        res.status(500).json({ message: 'Failed to fetch user data!', error })
     }
 }
 
@@ -47,6 +47,7 @@ const userFirestoreCreate = async (data, uid) => {
             uid,
             role: 'none',
             isDisabled: false,
+            isVerified: false,
         })
         await Wallet.doc(uid).set({
             driverId: uid,

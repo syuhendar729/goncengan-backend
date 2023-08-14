@@ -38,7 +38,7 @@ const userAuthUpdate = async (req, res) => {
             result,
         })
     } catch (error) {
-        res.send({ message: 'Failed to update user!', error })
+        res.status(500).send({ message: 'Failed to update user!', error })
     }
 }
 
