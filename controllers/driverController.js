@@ -4,8 +4,7 @@ const calculateDistance = (lat1, long1, lat2, long2) => {
     const radius = 6378137.0 // Radius bumi dalam meter
     const distance =
         Math.acos(
-            Math.sin((lat1 * Math.PI) / 180) *
-                Math.sin((lat2 * Math.PI) / 180) +
+            Math.sin((lat1 * Math.PI) / 180) * Math.sin((lat2 * Math.PI) / 180) +
                 Math.cos((lat1 * Math.PI) / 180) *
                     Math.cos((lat2 * Math.PI) / 180) *
                     Math.cos(((long1 - long2) * Math.PI) / 180),
@@ -25,8 +24,7 @@ const resultDriver = async (passenger) => {
                 driver.address.longitude,
             )
             const { id, name, address, avatar } = driver
-            if (distance <= 2000)
-                result.push({ id, name, avatar, address, distance })
+            if (distance <= 2000) result.push({ id, name, avatar, address, distance })
         })
         return result
     } catch (err) {

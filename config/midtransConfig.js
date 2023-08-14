@@ -31,9 +31,9 @@ const parameter = (orderId, price, user) => {
         enabled_payments: ['other_qris'],
         callbacks: {
             finish: process.env.MIDTRANS_FINISH_URL,
-			error: process.env.MIDTRANS_ERROR_URL,
-			// notification: process.env.MIDTRANS_NOTIFICATION_URL
-			// unfinish: process.env.MIDTRANS_UNFINISH_URL,
+            error: process.env.MIDTRANS_ERROR_URL,
+            // notification: process.env.MIDTRANS_NOTIFICATION_URL
+            // unfinish: process.env.MIDTRANS_UNFINISH_URL,
         },
     }
 }

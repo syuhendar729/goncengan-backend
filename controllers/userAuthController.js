@@ -1,8 +1,5 @@
 const { getAuth } = require('firebase-admin/auth')
-const {
-    userFirestoreCreate,
-    userFirestoreUpdate,
-} = require('./userFirestoreController')
+const { userFirestoreCreate, userFirestoreUpdate } = require('./userFirestoreController')
 
 const userAuthCreate = async (req, res) => {
     const { name, email, password } = req.body

@@ -1,4 +1,5 @@
 const Users = require('../instances/firestoreInstance')('users')
+const Wallet = require('../instances/firestoreInstance')('wallet')
 
 const userFirestore = async (req, res) => {
     try {
@@ -41,7 +42,18 @@ const userAnotherFirestoreDetail = async (req, res) => {
 
 const userFirestoreCreate = async (data, uid) => {
     try {
-        await Users.doc(uid).set({ ...data, uid, role: 'none', isDisabled: false })
+        await Users.doc(uid).set({
+            ...data,
+            uid,
+            role: 'none',
+            isDisabled: false,
+        })
+        await Wallet.doc(uid).set({
+            driverId: uid,
+            balance: 0,
+            dataIncome: [],
+            dataExpense: [],
+        })
     } catch (error) {
         console.error(error)
         throw new Error('Failed to create user!')

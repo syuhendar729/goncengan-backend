@@ -5,10 +5,7 @@ const {
     userFirestoreDetail,
     userAnotherFirestoreDetail,
 } = require('../controllers/userFirestoreController')
-const {
-    userAuthCreate,
-    userAuthUpdate,
-} = require('../controllers/userAuthController')
+const { userAuthCreate, userAuthUpdate } = require('../controllers/userAuthController')
 
 const userRoute = express.Router()
 

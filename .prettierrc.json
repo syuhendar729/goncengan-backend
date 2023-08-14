@@ -3,5 +3,7 @@
     "tabWidth": 4,
     "singleQuote": true,
     "jsxSingleQuote": true,
-    "proseWrap": "preserve"
+    "proseWrap": "preserve",
+    "bracketSameLine": true,
+    "printWidth": 120
 }
