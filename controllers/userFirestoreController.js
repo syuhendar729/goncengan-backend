@@ -40,14 +40,16 @@ const userAnotherFirestoreDetail = async (req, res) => {
     }
 }
 
-const userFirestoreCreate = async (data, uid) => {
+const userFirestoreCreate = async (req, res) => {
     try {
+        const uid = req.uid
+        const data = { ...req.body }
+        console.log(uid)
         await Users.doc(uid).set({
             ...data,
             uid,
             role: 'none',
             isDisabled: false,
-            isVerified: false,
         })
         await Wallet.doc(uid).set({
             driverId: uid,
@@ -55,9 +57,11 @@ const userFirestoreCreate = async (data, uid) => {
             dataIncome: [],
             dataExpense: [],
         })
+        res.send({ message: 'Successfully created user!', uid, data })
     } catch (error) {
         console.error(error)
-        throw new Error('Failed to create user!')
+        // throw new Error('Failed to create user!')
+        res.status(500).json({ message: `Failed to created user!`, error })
     }
 }
 

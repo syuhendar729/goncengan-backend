@@ -78,7 +78,6 @@ const notificationTransaction = async (req, res) => {
             transaction_id,
             gross_amount,
             expiry_time,
-            signature_key,
         } = req.body
         const amount = parseFloat(gross_amount)
         const transDoc = Transaction.doc(orderId)
