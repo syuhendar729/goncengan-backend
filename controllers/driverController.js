@@ -1,4 +1,5 @@
-const { getUsersWhere } = require('./userFirestoreController')
+const { getUsersWhere, getUserById } = require('./userFirestoreController')
+const BookingRoom = require('../instances/firestoreInstance')('booking_room')
 
 const calculateDistance = (lat1, long1, lat2, long2) => {
     const radius = 6378137.0 // Radius bumi dalam meter
@@ -12,24 +13,40 @@ const calculateDistance = (lat1, long1, lat2, long2) => {
     return distance // Dalam meter
 }
 
-const resultDriver = async (passenger) => {
+const resultBookingRoom = async (passenger) => {
     try {
         const result = []
-        const drivers = await getUsersWhere('role', '==', 'driver')
-        drivers.forEach((driver) => {
-            const distance = calculateDistance(
-                passenger.address.latitude,
-                passenger.address.longitude,
-                driver.address.latitude,
-                driver.address.longitude,
+
+        const bookingRoomData = await BookingRoom.where('passenger', '==', null).get()
+        bookingRoomData.forEach((doc) => {
+            // console.log(doc.data());
+            const departure = doc.data().driver.departure
+            const destination = doc.data().driver.destination
+            const departureDistance = calculateDistance(
+                departure.latitude,
+                departure.longitude,
+                passenger.departure.latitude,
+                passenger.departure.longitude,
             )
-            const { id, name, address, avatar } = driver
-            if (distance <= 2000) result.push({ id, name, avatar, address, distance })
+            const destinationDistance = calculateDistance(
+                destination.latitude,
+                destination.longitude,
+                passenger.destination.latitude,
+                passenger.destination.longitude,
+            )
+            // Filter by departureDate???
+            if (departureDistance <= 3000 && destinationDistance <= 3000) {
+                const { departureDate, ...data } = { ...doc.data() }
+                result.push({ ...data, departureDate: departureDate.toDate() })
+                result.push({})
+            }
         })
+
         return result
-    } catch (err) {
+    } catch (error) {
+        console.log(error)
         throw new Error("Can't result driver")
     }
 }
 
-module.exports = { resultDriver }
+module.exports = { resultBookingRoom }

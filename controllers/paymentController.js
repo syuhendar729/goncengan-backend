@@ -1,5 +1,5 @@
 const db = require('../instances/firestoreInstance')
-const Transaction = db('transaction')
+const Payment = db('payment')
 const Wallet = db('wallet')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
@@ -9,16 +9,16 @@ const axios = require('axios')
 const createTransaction = async (req, res) => {
     try {
         const { price, passengerId } = req.body
-        const transDoc = Transaction.doc()
-        await transDoc.set({
-            orderId: transDoc.id,
+        const payDoc = Payment.doc()
+        await payDoc.set({
+            orderId: payDoc.id,
             driverId: req.uid,
             passengerId,
         })
         const driver = await getUserById(req.uid)
-        const transaction = await snap.createTransaction(parameter(transDoc.id, price, driver))
+        const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
         const { token, redirect_url: redirectUrl } = transaction
-        await transDoc.update({ token, redirectUrl })
+        await payDoc.update({ token, redirectUrl })
         res.send({
             message: 'Successfully created transaction!',
             token,
@@ -36,11 +36,11 @@ const createTransaction = async (req, res) => {
 const createExpireTransaction = async (orderId, data) => {
     try {
         const { gross_amount: price } = data
-        const transDoc = Transaction.doc(orderId)
-        const transData = await transDoc.get()
-        const driver = await getUserById(transData.data().driverId)
+        const payDoc = Payment.doc(orderId)
+        const payData = await payDoc.get()
+        const driver = await getUserById(payData.data().driverId)
         const transaction = await snap.createTransaction(parameter(orderId, price, driver))
-        await transDoc.update({
+        await payDoc.update({
             token: transaction.token,
             redirectUrl: transaction.redirect_url,
         })
@@ -54,8 +54,8 @@ const finishTransaction = async (req, res) => {
     console.log('Finish Transaction: ', req.query)
     try {
         const { order_id, transaction_status: transactionStatus } = req.query
-        const docRef = Transaction.doc(order_id)
-        await docRef.update({ transactionStatus })
+        const payDoc = Payment.doc(order_id)
+        await payDoc.update({ transactionStatus })
         res.send({
             message: 'Successfully call the API callback!',
             data: req.query,
@@ -80,17 +80,17 @@ const notificationTransaction = async (req, res) => {
             expiry_time,
         } = req.body
         const amount = parseFloat(gross_amount)
-        const transDoc = Transaction.doc(orderId)
-        const transData = await transDoc.get()
-        const transactionStatus = transData.data().transactionStatus
+        const payDoc = Payment.doc(orderId)
+        const payData = await payDoc.get()
+        const transactionStatus = payData.data().transactionStatus
 
-        const driverId = transData.data().driverId
+        const driverId = payData.data().driverId
         const walletDoc = Wallet.doc(driverId)
 
-        if (!transData.exists) throw new Error(`Transaction id: ${orderId} not found!`)
+        if (!payData.exists) throw new Error(`Payment id: ${orderId} not found!`)
         else if (transactionStatus === 'expire' || transactionStatus === 'pending' || transactionStatus == undefined) {
             console.log('Update transaction: ', req.body, new Date())
-            await transDoc.update({
+            await payDoc.update({
                 price: amount,
                 transactionId: transaction_id,
                 transactionStatus: transactionStatusNew,
@@ -134,15 +134,6 @@ const getStatusTransaction = async (req, res) => {
     }
 }
 
-const paymentStatus = async (req, res) => {
-    console.log('Payment Status: ', req.body)
-}
-
-const cancelTransaction = async (req, res) => {
-    console.log('Cancel Transaction: ', req.query)
-    res.send({ ...req.query })
-}
-
 const errorTransaction = async (req, res) => {
     try {
         console.log('Error Transaction: ', req.query)
@@ -154,7 +145,6 @@ const errorTransaction = async (req, res) => {
             },
         }
         const dataStatus = await axios.get(url, config)
-        // res.send(dataStatus.data)
         const transaction = await createExpireTransaction(orderId, dataStatus.data)
         res.send({
             newToken: transaction.token,
@@ -172,7 +162,5 @@ module.exports = {
     finishTransaction,
     notificationTransaction,
     getStatusTransaction,
-    paymentStatus,
-    cancelTransaction,
     errorTransaction,
 }
