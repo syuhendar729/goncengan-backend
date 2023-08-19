@@ -4,7 +4,6 @@ const userCreateSchema = Joi.object({
     name: Joi.string().min(3).required(),
     nim: Joi.string().required(),
     email: Joi.string().email().required(),
-    // password: Joi.string().min(6).required(),
     address: Joi.object({
         formattedAddress: Joi.string().allow(null),
         latitude: Joi.number(),
@@ -13,6 +12,7 @@ const userCreateSchema = Joi.object({
     urlToStudentCard: Joi.string().uri().required(),
     avatar: Joi.string().allow(null).optional(),
     isVerified: Joi.boolean().optional(),
+	fcmToken: Joi.string().optional()
 })
 
 const userUpdateSchema = Joi.object({
@@ -28,15 +28,4 @@ const userUpdateSchema = Joi.object({
     avatar: Joi.string().allow(null).optional(),
 })
 
-const userValidator = (err, req, res, next) => {
-    if (err && err.error && err.error.isJoi) {
-        res.status(400).json({
-            type: err.type,
-            message: err.error.toString(),
-        })
-    } else {
-        next(err)
-    }
-}
-
-module.exports = { userCreateSchema, userUpdateSchema, userValidator }
+module.exports = { userCreateSchema, userUpdateSchema }

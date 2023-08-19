@@ -1,6 +1,6 @@
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
-const { Timestamp } = require('firebase-admin/firestore')
-const { resultBookingRoom } = require('./driverController')
+const { Timestamp, Filter } = require('firebase-admin/firestore')
+const { resultBookingRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
 
 const userSend = (user) => {
@@ -14,8 +14,8 @@ const userSend = (user) => {
 }
 
 const bookingPrice = (distance) => {
-    const multiple500m = Math.ceil(distance / 500)
-    const price = 2000 + (multiple500m - 1) * 2000
+    const multiple1000m = Math.ceil(distance / 1000)
+    const price = 2000 + (multiple1000m - 1) * 2000
     return price
 }
 
@@ -30,7 +30,8 @@ const driverCreateRoom = async (req, res) => {
         await bookingRoomDoc.set({
             bookingId,
             chatRoomId: null,
-            departureDate: Timestamp.fromDate(new Date()),
+            // departureDate: Timestamp.fromDate(new Date()),
+			departureDate: Timestamp.fromDate(new Date(req.body.departureDate)),
             driver: { ...resDriver, departure, destination },
             isBooked: false,
             isPayed: false,
@@ -66,7 +67,7 @@ const passengerCreateRoom = async (req, res) => {
     }
 }
 
-const passengerGetDriver = async (req, res) => {
+const passengerGetRoom = async (req, res) => {
     try {
         const distance = req.body.distance
         const bookingRooms = await resultBookingRoom(req.body.passenger)
@@ -81,23 +82,43 @@ const passengerGetDriver = async (req, res) => {
 
 const driverCancelRoom = async (req, res) => {
     try {
-        const uid = req.uid
         const bookingRoomDoc = BookingRoom.doc(req.params.bookingId)
         const bookingRoomData = await bookingRoomDoc.get()
         if (!bookingRoomData.exists) res.status(404).send({ message: "BookingRoom doesn't exist!" })
-        else if (bookingRoomData.data().driver.uid === uid) {
-            const response = await bookingRoomDoc.delete()
+        else if (bookingRoomData.data().driver.uid === req.uid) {
+            await bookingRoomDoc.delete()
             res.send({ message: 'Successfully delete or cancel BookingRoom!', response })
-        } else res.status(401).send({ message: 'Unautorizhed cancel bookingroom!' })
+        } else res.status(400).send({ message: "Invalid driver, can't cancel BookingRoom!" })
     } catch (error) {
         console.log(error)
-        res.status(500).send({ message: 'Failed to delete or cancel BookingRoom!', error })
+        res.status(500).send({ message: 'Failed to cancel BookingRoom!', error })
     }
 }
+
+const passengerCancelRoom = async (req, res) => {
+    try {
+        const uid = req.uid
+        const bookingRoomDoc = BookingRoom.doc(req.body.bookingId)
+        const bookingRoomData = await bookingRoomDoc.get()
+        if (!bookingRoomData.exists) 
+			res.status(404).send({ message: "BookingRoom doesn't exist!" })
+		else if (bookingRoomData.data().passenger === null) 
+			res.status(400).send({ message: "Passenger is null, can't cancel BookingRoom!" })
+		else if (bookingRoomData.data().passenger.uid === req.uid) {
+            await bookingRoomDoc.update({ passenger: null })
+            res.send({ message: 'Successfully cancel BookingRoom from passenger!' })
+        } else res.status(400).send({ message: "Invalid passenger, can't cancel BookingRoom!" })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ message: 'Failed to cancel BookingRoom!', error })
+    }
+}
+
 
 module.exports = {
     driverCreateRoom,
     passengerCreateRoom,
-    passengerGetDriver,
+    passengerGetRoom,
     driverCancelRoom,
+	passengerCancelRoom,
 }

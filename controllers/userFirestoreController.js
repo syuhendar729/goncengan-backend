@@ -48,11 +48,11 @@ const userFirestoreCreate = async (req, res) => {
         await Users.doc(uid).set({
             ...data,
             uid,
-            role: 'none',
+            role: null,
             isDisabled: false,
         })
         await Wallet.doc(uid).set({
-            driverId: uid,
+            userId: uid,
             balance: 0,
             dataIncome: [],
             dataExpense: [],
@@ -68,7 +68,7 @@ const userFirestoreCreate = async (req, res) => {
 const userFirestoreUpdate = async (data, uid) => {
     try {
         const user = Users.doc(uid)
-        const result = await user.update({ ...data, uid })
+        const result = await user.update({ ...data })
         return result
     } catch (error) {
         console.error(error)

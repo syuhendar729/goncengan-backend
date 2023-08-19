@@ -107,7 +107,7 @@ const notificationTransaction = async (req, res) => {
             await walletDoc.update({
                 balance: FieldValue.increment(amount),
                 dataIncome: FieldValue.arrayUnion({
-                    orderId,
+					paymentId: orderId,
                     amount,
                     timeDate: Timestamp.fromDate(new Date(transaction_time)),
                 }),
@@ -120,7 +120,7 @@ const notificationTransaction = async (req, res) => {
 
 const getStatusTransaction = async (req, res) => {
     try {
-        const url = `https://api.sandbox.midtrans.com/v2/${req.params.orderId}/status`
+        const url = `https://api.sandbox.midtrans.com/v2/${req.body.orderId}/status`
         const config = {
             headers: {
                 Authorization: `Basic ${Buffer.from(process.env.MIDTRANS_SERVER_KEY).toString('base64')}`,
@@ -130,7 +130,7 @@ const getStatusTransaction = async (req, res) => {
         res.send(dataStatus.data)
     } catch (error) {
         console.error(error)
-        res.status(500).send({ message: 'Get status gagal!', error })
+        res.status(500).send({ message: 'Failed get status!', error })
     }
 }
 
@@ -157,10 +157,27 @@ const errorTransaction = async (req, res) => {
     }
 }
 
+
+const getDetailTransaction = async (req, res) => {
+	try {
+		const payData = await Payment.doc(req.body.paymentId).get()
+		const { transactionTime, expiredTime, ...data } = payData.data()
+		res.send({ message: 'Successfully get detail transaction!', dataTransaction: { 
+			transactionTime: transactionTime.toDate(), 
+			expiredTime: expiredTime.toDate(), 
+			...data 
+		} })
+	} catch (error) {
+		console.log(error)
+		res.status(500).send({ message: 'Failed get detail transaction!', error })
+	}
+}
+
 module.exports = {
     createTransaction,
     finishTransaction,
     notificationTransaction,
     getStatusTransaction,
     errorTransaction,
+	getDetailTransaction
 }
