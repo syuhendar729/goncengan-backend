@@ -36,9 +36,9 @@ const resultBookingRoom = async (passenger) => {
             )
             // Filter by departureDate???
             if (departureDistance <= 3000 && destinationDistance <= 3000) {
+				console.log({ departureDistance, destinationDistance })
                 const { departureDate, ...data } = { ...doc.data() }
                 result.push({ ...data, departureDate: departureDate.toDate() })
-                result.push({})
             }
         })
 

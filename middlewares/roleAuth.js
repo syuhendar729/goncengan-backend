@@ -22,7 +22,7 @@ const isActiveRoom = async (req, res, next) => {
 	try {
 		const result = await getActiveBookingRoom(req.uid)
 		if (result === 0) next()
-		else res.status(500).send({ message: 'You are now in active room!' })
+		else res.status(403).send({ message: 'You are now in active room!' })
 	} catch (error) {
         console.error(error)
 		res.status(500).send({ message: 'Failed to get active room!', error })
@@ -33,7 +33,7 @@ const isValidDriver = async (req, res, next) => {
     try {
         const roomData = await BookingRoom.doc(req.body.bookingId).get()
 		if (roomData.data().driver.uid === req.uid) next()
-		else res.status(401).send({ message: 'You are not a valid driver!' })
+		else res.status(403).send({ message: 'You are not a valid driver!' })
     } catch (error) {
         console.error(error)
         res.status(500).send({ message: 'Failed to match driverId in BookingRoom!' })

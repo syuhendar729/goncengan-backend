@@ -17,7 +17,7 @@ app.use(mainRoute)
 
 // == Error Handling ==
 app.use((req, res, next) => {
-    res.status(404).json({ message: 'Not Found' })
+    res.status(404).json({ message: 'API Not Found' })
 })
 app.use((err, req, res, next) => {
     console.error(err.stack)

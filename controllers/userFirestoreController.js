@@ -8,7 +8,7 @@ const userFirestore = async (req, res) => {
         users.forEach((doc) => {
             result.push({ id: doc.id, ...doc.data() })
         })
-        res.send(result)
+        res.send({ message: 'Successfully get all data user', data: result })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Failed to fetch data users!', error })
@@ -19,7 +19,7 @@ const userFirestoreDetail = async (req, res) => {
     try {
         const user = await Users.doc(req.uid).get()
         if (!user.exists) res.status(404).json({ message: 'User not found!' })
-        else res.send(user.data())
+        else res.send({ message: 'Successfully get detail user!', data: user.data() })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Failed to fetch user data!', error })
@@ -32,7 +32,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
         if (!user.exists) res.status(404).json({ message: 'User not found!' })
         else {
             const { name, avatar, address } = { ...user.data() }
-            res.send({ name, avatar, address })
+            res.send({ message: 'Successfully get another user!', data: { name, avatar, address } })
         }
     } catch (error) {
         console.error(error)
@@ -43,7 +43,7 @@ const userAnotherFirestoreDetail = async (req, res) => {
 const userFirestoreCreate = async (req, res) => {
     try {
         const uid = req.uid
-        const data = { ...req.body }
+        const data = req.body
         console.log(uid)
         await Users.doc(uid).set({
             ...data,
@@ -57,10 +57,9 @@ const userFirestoreCreate = async (req, res) => {
             dataIncome: [],
             dataExpense: [],
         })
-        res.send({ message: 'Successfully created user!', uid, data })
+        res.send({ message: 'Successfully created user!', data })
     } catch (error) {
         console.error(error)
-        // throw new Error('Failed to create user!')
         res.status(500).json({ message: `Failed to created user!`, error })
     }
 }
@@ -68,7 +67,7 @@ const userFirestoreCreate = async (req, res) => {
 const userFirestoreUpdate = async (data, uid) => {
     try {
         const user = Users.doc(uid)
-        const result = await user.update({ ...data })
+        const result = await user.update(data)
         return result
     } catch (error) {
         console.error(error)

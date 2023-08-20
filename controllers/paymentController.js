@@ -1,6 +1,7 @@
 const db = require('../instances/firestoreInstance')
 const Payment = db('payment')
 const Wallet = db('wallet')
+const BookingRoom = db('booking_room')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
@@ -8,12 +9,16 @@ const axios = require('axios')
 
 const createTransaction = async (req, res) => {
     try {
-        const { price, passengerId } = req.body
+        // const { price, passengerId, bookingId } = req.body
+		const bookingId = req.body.bookingId
+		const bookingRoomData = await BookingRoom.doc(bookingId).get()
+		const { passenger, price } = bookingRoomData.data()
         const payDoc = Payment.doc()
         await payDoc.set({
             orderId: payDoc.id,
             driverId: req.uid,
-            passengerId,
+            passengerId: passenger.uid,
+			bookingId
         })
         const driver = await getUserById(req.uid)
         const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
@@ -21,8 +26,7 @@ const createTransaction = async (req, res) => {
         await payDoc.update({ token, redirectUrl })
         res.send({
             message: 'Successfully created transaction!',
-            token,
-            redirectUrl,
+			data: { token, redirectUrl }
         })
     } catch (error) {
         console.error(error)
@@ -86,6 +90,8 @@ const notificationTransaction = async (req, res) => {
 
         const driverId = payData.data().driverId
         const walletDoc = Wallet.doc(driverId)
+		const bookingId = payData.data().bookingId
+		const bookingRoomDoc = BookingRoom.doc(bookingId)
 
         if (!payData.exists) throw new Error(`Payment id: ${orderId} not found!`)
         else if (transactionStatus === 'expire' || transactionStatus === 'pending' || transactionStatus == undefined) {
@@ -112,6 +118,7 @@ const notificationTransaction = async (req, res) => {
                     timeDate: Timestamp.fromDate(new Date(transaction_time)),
                 }),
             })
+			await bookingRoomDoc.update({ isPayed: true, paymentId: orderId })
         }
     } catch (error) {
         console.error(error)
@@ -127,7 +134,7 @@ const getStatusTransaction = async (req, res) => {
             },
         }
         const dataStatus = await axios.get(url, config)
-        res.send(dataStatus.data)
+        res.send({ message: 'Successfully get status data', data: dataStatus.data })
     } catch (error) {
         console.error(error)
         res.status(500).send({ message: 'Failed get status!', error })
@@ -147,9 +154,12 @@ const errorTransaction = async (req, res) => {
         const dataStatus = await axios.get(url, config)
         const transaction = await createExpireTransaction(orderId, dataStatus.data)
         res.send({
-            newToken: transaction.token,
-            newRedirectUrl: transaction.redirect_url,
-            data: dataStatus.data,
+			message: 'Successfully create expired transaction!',
+			data: {
+				newToken: transaction.token,
+				newRedirectUrl: transaction.redirect_url,
+				dataStatus: dataStatus.data,
+			}
         })
     } catch (error) {
         console.error(error)
@@ -162,7 +172,7 @@ const getDetailTransaction = async (req, res) => {
 	try {
 		const payData = await Payment.doc(req.body.paymentId).get()
 		const { transactionTime, expiredTime, ...data } = payData.data()
-		res.send({ message: 'Successfully get detail transaction!', dataTransaction: { 
+		res.send({ message: 'Successfully get detail transaction!', data: { 
 			transactionTime: transactionTime.toDate(), 
 			expiredTime: expiredTime.toDate(), 
 			...data 

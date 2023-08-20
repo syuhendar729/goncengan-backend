@@ -11,8 +11,7 @@ const userAuthUpdate = async (req, res) => {
         const result = await userFirestoreUpdate(req.body, uid)
         res.send({
             message: 'Successfully updated the user!',
-            userRecord,
-            result,
+			data: { userRecord, result }
         })
     } catch (error) {
         res.status(500).send({ message: 'Failed to update user!', error })

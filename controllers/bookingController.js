@@ -39,7 +39,7 @@ const driverCreateRoom = async (req, res) => {
             paymentId: null,
             price: null,
         })
-        res.send({ message: 'Successfully create booking_room!', bookingId })
+        res.send({ message: 'Successfully create booking_room!', data: { bookingId } })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed create booking_room!', error })
@@ -59,8 +59,8 @@ const passengerCreateRoom = async (req, res) => {
 
         if (bookingRoomData.data().passenger === null) {
             await bookingRoomDoc.update({ passenger: { ...resPass, departure, destination }, isBooked: true, price })
-            res.send({ message: 'Successfully update BookingRoom!', price, passenger: resPass })
-        } else res.status(400).send({ message: 'Passenger already exist!' })
+            res.send({ message: 'Successfully update BookingRoom for passenger!', data: { price, passenger: resPass } })
+        } else res.status(403).send({ message: 'Passenger already exist!' })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed update BookingRoom!', error })
@@ -72,8 +72,8 @@ const passengerGetRoom = async (req, res) => {
         const distance = req.body.distance
         const bookingRooms = await resultBookingRoom(req.body.passenger)
         const price = bookingPrice(distance)
-        if (bookingRooms.length != 0) res.send({ message: 'BookingRoom found!', distance, price, bookingRooms })
-        else res.status(404).send({ drivers: 'No BookingRoom and drivers match!' })
+        if (bookingRooms.length != 0) res.send({ message: 'BookingRoom found!', data: { distance, price, bookingRooms } })
+        else res.status(404).send({ message: 'No BookingRoom and drivers match!', data: { distance, price, bookingRooms: [] } })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed to get BookingRoom and drivers!', error })
@@ -82,13 +82,15 @@ const passengerGetRoom = async (req, res) => {
 
 const driverCancelRoom = async (req, res) => {
     try {
-        const bookingRoomDoc = BookingRoom.doc(req.params.bookingId)
+		const driverId = req.uid
+		const bookingId = req.params.bookingId
+        const bookingRoomDoc = BookingRoom.doc(bookingId)
         const bookingRoomData = await bookingRoomDoc.get()
         if (!bookingRoomData.exists) res.status(404).send({ message: "BookingRoom doesn't exist!" })
-        else if (bookingRoomData.data().driver.uid === req.uid) {
+        else if (bookingRoomData.data().driver.uid === driverId) {
             await bookingRoomDoc.delete()
-            res.send({ message: 'Successfully delete or cancel BookingRoom!', response })
-        } else res.status(400).send({ message: "Invalid driver, can't cancel BookingRoom!" })
+            res.send({ message: 'Successfully cancel dan delete BookingRoom from driver!', data: { bookingId, driverId } })
+        } else res.status(403).send({ message: "Invalid driver, can't cancel BookingRoom!" })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed to cancel BookingRoom!', error })
@@ -97,17 +99,18 @@ const driverCancelRoom = async (req, res) => {
 
 const passengerCancelRoom = async (req, res) => {
     try {
-        const uid = req.uid
-        const bookingRoomDoc = BookingRoom.doc(req.body.bookingId)
+        const passengerId = req.uid
+		const bookingId = req.body.bookingId
+        const bookingRoomDoc = BookingRoom.doc(bookingId)
         const bookingRoomData = await bookingRoomDoc.get()
         if (!bookingRoomData.exists) 
 			res.status(404).send({ message: "BookingRoom doesn't exist!" })
 		else if (bookingRoomData.data().passenger === null) 
 			res.status(400).send({ message: "Passenger is null, can't cancel BookingRoom!" })
-		else if (bookingRoomData.data().passenger.uid === req.uid) {
+		else if (bookingRoomData.data().passenger.uid === passengerId) {
             await bookingRoomDoc.update({ passenger: null })
-            res.send({ message: 'Successfully cancel BookingRoom from passenger!' })
-        } else res.status(400).send({ message: "Invalid passenger, can't cancel BookingRoom!" })
+            res.send({ message: 'Successfully cancel BookingRoom from passenger!', data: { bookingId, passengerId } })
+        } else res.status(403).send({ message: "Invalid passenger, can't cancel BookingRoom!" })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed to cancel BookingRoom!', error })
