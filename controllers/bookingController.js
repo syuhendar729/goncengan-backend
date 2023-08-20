@@ -1,5 +1,5 @@
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
-const { Timestamp, Filter } = require('firebase-admin/firestore')
+const { Timestamp, Filter, FieldValue } = require('firebase-admin/firestore')
 const { resultBookingRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
 
@@ -30,14 +30,17 @@ const driverCreateRoom = async (req, res) => {
         await bookingRoomDoc.set({
             bookingId,
             chatRoomId: null,
-            // departureDate: Timestamp.fromDate(new Date()),
 			departureDate: Timestamp.fromDate(new Date(req.body.departureDate)),
             driver: { ...resDriver, departure, destination },
+			isArrive: false,
             isBooked: false,
+			isDepart: false,
             isPayed: false,
+			isPicked: false,
             passenger: null,
             paymentId: null,
             price: null,
+			users: FieldValue.arrayUnion(req.uid)
         })
         res.send({ message: 'Successfully create booking_room!', data: { bookingId } })
     } catch (error) {
@@ -48,8 +51,7 @@ const driverCreateRoom = async (req, res) => {
 
 const passengerCreateRoom = async (req, res) => {
     try {
-        const uid = req.uid
-        const passenger = await getUserById(uid)
+        const passenger = await getUserById(req.uid)
         const resPass = userSend(passenger)
         const bookingRoomDoc = BookingRoom.doc(req.body.bookingId)
         const bookingRoomData = await bookingRoomDoc.get()
@@ -58,7 +60,11 @@ const passengerCreateRoom = async (req, res) => {
         const price = bookingPrice(req.body.distance)
 
         if (bookingRoomData.data().passenger === null) {
-            await bookingRoomDoc.update({ passenger: { ...resPass, departure, destination }, isBooked: true, price })
+            await bookingRoomDoc.update({ 
+				passenger: { ...resPass, departure, destination }, 
+				isBooked: true, price, 
+				users: FieldValue.arrayUnion(req.uid) 
+			})
             res.send({ message: 'Successfully update BookingRoom for passenger!', data: { price, passenger: resPass } })
         } else res.status(403).send({ message: 'Passenger already exist!' })
     } catch (error) {
@@ -70,8 +76,8 @@ const passengerCreateRoom = async (req, res) => {
 const passengerGetRoom = async (req, res) => {
     try {
         const distance = req.body.distance
-        const bookingRooms = await resultBookingRoom(req.body.passenger)
         const price = bookingPrice(distance)
+        const bookingRooms = await resultBookingRoom(req.body.passenger, price)
         if (bookingRooms.length != 0) res.send({ message: 'BookingRoom found!', data: { distance, price, bookingRooms } })
         else res.status(404).send({ message: 'No BookingRoom and drivers match!', data: { distance, price, bookingRooms: [] } })
     } catch (error) {
@@ -99,18 +105,19 @@ const driverCancelRoom = async (req, res) => {
 
 const passengerCancelRoom = async (req, res) => {
     try {
-        const passengerId = req.uid
+        const userId = req.uid
 		const bookingId = req.body.bookingId
         const bookingRoomDoc = BookingRoom.doc(bookingId)
         const bookingRoomData = await bookingRoomDoc.get()
+		const { passenger, driver } = bookingRoomData.data()
         if (!bookingRoomData.exists) 
-			res.status(404).send({ message: "BookingRoom doesn't exist!" })
-		else if (bookingRoomData.data().passenger === null) 
+			res.status(404).send({ message: "BookingRoom doesn't exist, can't cancel BookingRoom!" })
+		else if (passenger === null) 
 			res.status(400).send({ message: "Passenger is null, can't cancel BookingRoom!" })
-		else if (bookingRoomData.data().passenger.uid === passengerId) {
-            await bookingRoomDoc.update({ passenger: null })
-            res.send({ message: 'Successfully cancel BookingRoom from passenger!', data: { bookingId, passengerId } })
-        } else res.status(403).send({ message: "Invalid passenger, can't cancel BookingRoom!" })
+		else if (passenger.uid === userId || driver.uid === userId) {
+            await bookingRoomDoc.update({ passenger: null, users: FieldValue.arrayRemove(passenger.uid) })
+            res.send({ message: 'Successfully cancel passenger in BookingRoom!', data: { bookingId, userId } })
+        } else res.status(403).send({ message: "Invalid driver or passenger, can't cancel BookingRoom!" })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed to cancel BookingRoom!', error })

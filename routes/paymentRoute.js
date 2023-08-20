@@ -5,7 +5,7 @@ const { joiErrorHandling } = require('../middlewares/joiError')
 
 const { verifySignature } = require('../middlewares/payAuth')
 const { userAuth } = require('../middlewares/userAuth')
-const { isValidDriver, isValidPassenger } = require('../middlewares/roleAuth')
+const { isActiveDriver } = require('../middlewares/roleActive')
 const { createTransactionSchema } = require('../middlewares/payValidator')
 const {
     createTransaction,
@@ -18,7 +18,7 @@ const {
 
 const paymentRoute = express.Router()
 
-paymentRoute.route('/create-transaction').post(userAuth, isValidDriver, validator.body(createTransactionSchema), joiErrorHandling, createTransaction)
+paymentRoute.route('/create-transaction').post(userAuth, isActiveDriver, validator.body(createTransactionSchema), joiErrorHandling, createTransaction)
 paymentRoute.route('/finish-transaction').get(finishTransaction)
 paymentRoute.route('/notification-transaction').post(verifySignature, notificationTransaction)
 paymentRoute.route('/check-transaction').get(userAuth, getStatusTransaction)

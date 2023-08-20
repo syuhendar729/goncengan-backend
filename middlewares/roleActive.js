@@ -29,21 +29,35 @@ const isActiveRoom = async (req, res, next) => {
 	}
 }
 
-const isValidDriver = async (req, res, next) => {
+const isActiveDriver = async (req, res, next) => {
     try {
-        const roomData = await BookingRoom.doc(req.body.bookingId).get()
-		if (roomData.data().driver.uid === req.uid) next()
-		else res.status(403).send({ message: 'You are not a valid driver!' })
+		const bookingId = req.body.bookingId || req.params.bookingId
+        const roomData = await BookingRoom.doc(bookingId).get()
+		if (roomData.exists) {
+			if (roomData.data().driver.uid === req.uid) next()
+			else res.status(403).send({ message: 'You are not a valid driver!' })
+		}
+		else res.status(404).send({ message: "BookingRoom doesn't exist!" })
     } catch (error) {
         console.error(error)
-        res.status(500).send({ message: 'Failed to match driverId in BookingRoom!' })
+        res.status(500).send({ message: 'Failed to validating driverId in BookingRoom!', error })
     }
 }
 
-const isValidPassenger = async (req, res, next) => {
+const isActivePassenger = async (req, res, next) => {
+    try {
+        const roomData = await BookingRoom.doc(req.body.bookingId).get()
+		if (roomData.exists) {
+			if (roomData.data().passenger.uid === req.uid) next()
+			else res.status(403).send({ message: 'You are not a valid passenger!' })
+		} else res.status(404).send({ message: "BookingRoom doesn't exist!" })
+    } catch (error) {
+        console.error(error)
+        res.status(500).send({ message: 'Failed to validating driverId in BookingRoom!', error })
+    }
 }
 
-module.exports = { isActiveRoom, isValidDriver, isValidPassenger }
+module.exports = { isActiveRoom, isActiveDriver, isActivePassenger }
 
 
 

@@ -16,7 +16,7 @@ const {
     passengerGetRoomSchema,
 } = require('../middlewares/bookingValidator')
 const { joiErrorHandling } = require('../middlewares/joiError')
-const { isActiveRoom } = require('../middlewares/roleAuth')
+const { isActiveRoom, isActiveDriver, isActivePassenger } = require('../middlewares/roleActive')
 
 const orderRoute = express.Router()
 orderRoute
@@ -30,10 +30,15 @@ orderRoute
     .post(userAuth, isActiveRoom, validator.body(passengerGetRoomSchema), joiErrorHandling, passengerGetRoom)
 orderRoute
 	.route('/driver-cancelroom/:bookingId')
-	.delete(userAuth, driverCancelRoom)
+	.delete(userAuth, isActiveDriver, driverCancelRoom)
 orderRoute
 	.route('/passenger-cancelroom')
-	.patch(userAuth, validator.body(Joi.object({ bookingId: Joi.string().required() })), joiErrorHandling, passengerCancelRoom)
+	.patch(userAuth, isActivePassenger, 
+		validator.body(Joi.object({ bookingId: Joi.string().required() })), joiErrorHandling, passengerCancelRoom)
+orderRoute
+	.route('/driver-cancelroom')
+	.patch(userAuth, isActiveDriver, 
+		validator.body(Joi.object({ bookingId: Joi.string().required() })), joiErrorHandling, passengerCancelRoom)
 
 
 module.exports = orderRoute

@@ -1,5 +1,6 @@
 const { getUsersWhere, getUserById } = require('./userFirestoreController')
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
+const Users = require('../instances/firestoreInstance')('users')
 
 const calculateDistance = (lat1, long1, lat2, long2) => {
     const radius = 6378137.0 // Radius bumi dalam meter
@@ -13,7 +14,7 @@ const calculateDistance = (lat1, long1, lat2, long2) => {
     return distance // Dalam meter
 }
 
-const resultBookingRoom = async (passenger) => {
+const resultBookingRoom = async (passenger, reqPrice) => {
     try {
         const result = []
 
@@ -35,10 +36,19 @@ const resultBookingRoom = async (passenger) => {
                 passenger.destination.longitude,
             )
             // Filter by departureDate???
-            if (departureDistance <= 3000 && destinationDistance <= 3000) {
-				console.log({ departureDistance, destinationDistance })
-                const { departureDate, ...data } = { ...doc.data() }
-                result.push({ ...data, departureDate: departureDate.toDate() })
+            // const { departureDate, price, driver, ...data } = doc.data()
+            const { departureDate, price, ...data } = doc.data()
+			const departureDateJS = departureDate.toDate()
+            if (departureDistance <= 3000 && destinationDistance <= 3000 && departureDateJS > new Date()) {
+				// console.log({ departureDistance, destinationDistance })
+				// const user = await Users.doc(driver.uid).get()
+				// const { name, nim, avatar, fcmToken, uid } = user.data()
+                result.push({ 
+					price: reqPrice, 
+					departureDate: departureDateJS, 
+					// driver: { name, nim, avatar, fcmToken, uid, departure, destination },
+					...data 
+				})
             }
         })
 
