@@ -15,6 +15,7 @@ const {
     errorTransaction,
 	getDetailTransaction
 } = require('../controllers/paymentController')
+const { tryNotification } = require('../controllers/fcmController')
 
 const paymentRoute = express.Router()
 
@@ -25,5 +26,6 @@ paymentRoute.route('/check-transaction').get(userAuth, getStatusTransaction)
 paymentRoute.route('/error-transaction').get(errorTransaction)
 
 paymentRoute.route('/get-detail-transaction').get(getDetailTransaction)
+paymentRoute.route('/fcm-testing').post(userAuth, tryNotification)
 
 module.exports = paymentRoute

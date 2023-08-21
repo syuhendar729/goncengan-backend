@@ -1,19 +1,6 @@
+const { getAuth } = require('firebase-admin/auth')
 const Users = require('../instances/firestoreInstance')('users')
 const Wallet = require('../instances/firestoreInstance')('wallet')
-
-const userFirestore = async (req, res) => {
-    try {
-        const result = []
-        const users = await Users.get()
-        users.forEach((doc) => {
-            result.push({ id: doc.id, ...doc.data() })
-        })
-        res.send({ message: 'Successfully get all data user', data: result })
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Failed to fetch data users!', error })
-    }
-}
 
 const userFirestoreDetail = async (req, res) => {
     try {
@@ -26,37 +13,14 @@ const userFirestoreDetail = async (req, res) => {
     }
 }
 
-const userAnotherFirestoreDetail = async (req, res) => {
-    try {
-        const user = await Users.doc(req.params.id).get()
-        if (!user.exists) res.status(404).json({ message: 'User not found!' })
-        else {
-            const { name, avatar, address } = { ...user.data() }
-            res.send({ message: 'Successfully get another user!', data: { name, avatar, address } })
-        }
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ message: 'Failed to fetch user data!', error })
-    }
-}
-
 const userFirestoreCreate = async (req, res) => {
     try {
         const uid = req.uid
         const data = req.body
-        console.log(uid)
-        await Users.doc(uid).set({
-            ...data,
-            uid,
-            role: null,
-            isDisabled: false,
-        })
-        await Wallet.doc(uid).set({
-            userId: uid,
-            balance: 0,
-            dataIncome: [],
-            dataExpense: [],
-        })
+		const userRecord = await getAuth().getUser(uid)
+		const { email, displayName } = userRecord.toJSON()
+		await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
+		await Wallet.doc(uid).set({ userId: uid, balance: 0, dataIncome: [], dataExpense: [] })
         res.send({ message: 'Successfully created user!', data })
     } catch (error) {
         console.error(error)
@@ -64,15 +28,18 @@ const userFirestoreCreate = async (req, res) => {
     }
 }
 
-const userFirestoreUpdate = async (data, uid) => {
-    try {
+const userFirestoreUpdate = async (req, res) => {
+	try {
+		const data = req.body
+		const uid = req.uid
+        const userRecord = await getAuth().updateUser(uid, { email: data.email, displayName: data.name })
         const user = Users.doc(uid)
-        const result = await user.update(data)
-        return result
-    } catch (error) {
-        console.error(error)
-        throw new Error('Failed to update user data!')
-    }
+		await user.update({ ...data })
+        res.send({ message: 'Successfully updated the user!', data: { userRecord } })
+	} catch (error) {
+		console.log(error)
+        res.status(500).send({ message: 'Failed to update user!', error })
+	}
 }
 
 const getUsersWhere = async (key, assign, value) => {
@@ -102,9 +69,7 @@ const getUserById = async (id) => {
 }
 
 module.exports = {
-    userFirestore,
     userFirestoreDetail,
-    userAnotherFirestoreDetail,
     userFirestoreCreate,
     userFirestoreUpdate,
     getUsersWhere,

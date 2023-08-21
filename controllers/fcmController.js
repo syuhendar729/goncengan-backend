@@ -1,30 +1,57 @@
-const { getMessaging } = require('firebase-admin/messaging')
-const registrationTokens =
-    'AAAAgEEO0d0:APA91bEpxnl0w_sLwVIjBkbGIx3Vt7rM1vPoyzlKs12HNOJv45wimoLAEq-5BQF2v7rjz9V1zPB40YNUPbCPF2YqoC2hcXllD1nEQfl5p3FMahhugTmziQOaSNH6dCYZSNPiQgivXbXs'
+const axios = require('axios')
+const { getUserById } = require('./userFirestoreController')
 
-const message = {
-    data: {
-        // score: '850',
-        // time: '2:45',
-        to: 'e5utsN5gTiSZjv_w-5d3pD:APA91bGYtisaNQyCCom1xsIM6q2N-3FdwBocPyj1pgNZkQW62kGj6BRfJarLE6M_AtWDuPbbp5Jry61-Fq0GtbXnEY0gzifF2GPwKbCEL8PLoZIiwbRgnjs7GKK4 rTyoV6ZcCfTThDaB',
-        priority: 'high',
-        mutable_content: true,
-        notification: {
-            badge: 42,
-            title: 'Huston! The eagle has landed!',
-            body: "A small step for a man, but a giant leap to Flutter's community!",
-        },
-    },
+
+const tryNotification = async (req, res) => {
+	try {
+		const user = await getUserById(req.uid)
+		if (user.fcmToken === undefined) throw new Error(`For user ${user.name} fcmToken doesn't exists`)
+		const message = {
+			to: user.fcmToken,
+			priority: "high",
+			mutable_content: true,
+			notification: {
+				badge: 42,
+				title: req.body.title,
+				body: req.body.message
+    		}
+		}
+		const response = await axios.post('https://fcm.googleapis.com/fcm/send', message, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `key=${process.env.FCM_SERVER_KEY}`
+			}
+		})
+		res.send({ message: 'Push notification sent successfully:', data: response.data })
+	} catch (error) {
+		console.log(error);
+		res.send({ message: 'Error sending push notification:', error })
+	}
 }
 
-const messageController = async (req, res) => {
-    try {
-        const response = await getMessaging().sendToDevice(registrationTokens, message)
-        res.send({ message: 'Successfully sent message:', response })
-    } catch (error) {
-        console.error(error)
-        res.status(500).send({ error })
-    }
+const sendNotification = async (uid, data) => {
+	try {
+		const user = await getUserById(uid)
+		if (user.fcmToken === undefined) throw new Error(`For user ${user.name} fcmToken doesn't exists`)
+		const message = {
+			to: user.fcmToken, 
+			priority: "high",
+			mutable_content: true,
+			notification: {
+				badge: 42,
+				title: data.title,
+				body: data.message
+    		}
+		}
+		const response = await axios.post('https://fcm.googleapis.com/fcm/send', message, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `key=${process.env.FCM_SERVER_KEY}`
+			}
+		})
+	} catch (error) {
+		console.log(error);
+	}
 }
 
-module.exports = { messageController }
+module.exports = { tryNotification, sendNotification }

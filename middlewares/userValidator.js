@@ -1,9 +1,9 @@
 const Joi = require('joi')
 
 const userCreateSchema = Joi.object({
-    name: Joi.string().min(3).required(),
+    name: Joi.string().min(3).optional(),
     nim: Joi.string().required(),
-    email: Joi.string().email().required(),
+    email: Joi.string().email().optional(),
     address: Joi.object({
         formattedAddress: Joi.string().allow(null),
         latitude: Joi.number(),

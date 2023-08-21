@@ -4,14 +4,15 @@ const Wallet = db('wallet')
 const BookingRoom = db('booking_room')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
+const { sendNotification } = require('./fcmController')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
 const axios = require('axios')
 
 const createTransaction = async (req, res) => {
     try {
-        // const { price, passengerId, bookingId } = req.body
 		const bookingId = req.body.bookingId
-		const bookingRoomData = await BookingRoom.doc(bookingId).get()
+		const bookingRoomDoc = BookingRoom.doc(bookingId)
+		const bookingRoomData = await bookingRoomDoc.get()
 		const { passenger, price } = bookingRoomData.data()
         const payDoc = Payment.doc()
         await payDoc.set({
@@ -21,9 +22,10 @@ const createTransaction = async (req, res) => {
 			bookingId
         })
         const driver = await getUserById(req.uid)
-        const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
+		const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
         const { token, redirect_url: redirectUrl } = transaction
         await payDoc.update({ token, redirectUrl })
+		await bookingRoomDoc.update({ paymentId: payDoc.id })
         res.send({
             message: 'Successfully created transaction!',
 			data: { token, redirectUrl }
@@ -59,7 +61,7 @@ const finishTransaction = async (req, res) => {
     try {
         const { order_id, transaction_status: transactionStatus } = req.query
         const payDoc = Payment.doc(order_id)
-        await payDoc.update({ transactionStatus })
+        // await payDoc.update({ transactionStatus })
         res.send({
             message: 'Successfully call the API callback!',
             data: req.query,
@@ -110,6 +112,7 @@ const notificationTransaction = async (req, res) => {
             transactionStatusNew === 'settlement'
         ) {
             console.log('Wallet update: ', { orderId, amount, timeDate: new Date() })
+			const bookingRoomData = await bookingRoomDoc.get()
             await walletDoc.update({
                 balance: FieldValue.increment(amount),
                 dataIncome: FieldValue.arrayUnion({
@@ -118,7 +121,17 @@ const notificationTransaction = async (req, res) => {
                     timeDate: Timestamp.fromDate(new Date(transaction_time)),
                 }),
             })
-			await bookingRoomDoc.update({ isPayed: true, paymentId: orderId })
+			await bookingRoomDoc.update({ isPayed: true })
+			const notifDataPassenger = { 
+				title: 'Status Pembayaran',
+				message: `Anda berhasil membayar senilai Rp${amount} dengan ID ${orderId}!`
+			}
+			const notifDataDriver = { 
+				title: 'Status Pembayaran',
+				message: `Status pembayaran anda berhasil dengan id ${orderId} dan harga ${amount}!`
+			}
+			sendNotification(bookingRoomData.data().passenger.uid, notifDataPassenger)
+			sendNotification(bookingRoomData.data().driver.uid, notifDataDriver)
         }
     } catch (error) {
         console.error(error)

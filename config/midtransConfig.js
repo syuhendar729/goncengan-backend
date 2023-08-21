@@ -32,8 +32,6 @@ const parameter = (orderId, price, user) => {
         callbacks: {
             finish: process.env.MIDTRANS_FINISH_URL,
             error: process.env.MIDTRANS_ERROR_URL,
-            // notification: process.env.MIDTRANS_NOTIFICATION_URL
-            // unfinish: process.env.MIDTRANS_UNFINISH_URL,
         },
     }
 }
