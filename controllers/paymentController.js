@@ -14,7 +14,7 @@ const createTransaction = async (req, res) => {
 		const bookingRoomDoc = BookingRoom.doc(bookingId)
 		const bookingRoomData = await bookingRoomDoc.get()
 		const { passenger, price } = bookingRoomData.data()
-        const payDoc = Payment.doc()
+        const payDoc = Payment.doc(bookingId)
         await payDoc.set({
             orderId: payDoc.id,
             driverId: req.uid,

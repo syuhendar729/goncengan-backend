@@ -65,7 +65,7 @@ const passengerCreateRoom = async (req, res) => {
 				passenger: { ...resPass, departure, destination }, 
 				users: FieldValue.arrayUnion(req.uid) 
 			})
-            res.send({ message: 'Successfully update BookingRoom for passenger!', data: { distance, price, passenger: resPass } })
+            res.send({ message: 'Successfully update BookingRoom for passenger!', data: { bookingId: req.body.bookingId,distance, price, passenger: resPass } })
         } else res.status(403).send({ message: 'Passenger already exist!' })
     } catch (error) {
         console.log(error)
