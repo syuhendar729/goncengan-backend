@@ -29,20 +29,35 @@ const tryNotification = async (req, res) => {
 	}
 }
 
-const sendNotification = async (uid, data) => {
+const sendNotification = async (uid, data, senderId) => {
 	try {
 		const user = await getUserById(uid)
 		if (user.fcmToken === undefined) throw new Error(`For user ${user.name} fcmToken doesn't exists`)
-		const message = {
-			to: user.fcmToken, 
+		/* const message = {
+			to: user.fcmToken,
 			priority: "high",
 			mutable_content: true,
 			notification: {
 				badge: 42,
 				title: data.title,
 				body: data.message
-    		}
+			}
+		} */
+
+		const message = {
+      		to: user.fcmToken,
+      		content_available: true,
+      		priority: "high",
+			data: {
+				title: data.title,
+				body: data.message,
+				channel: "paymentFinish",
+				sender: senderId,
+				summary: "Pembayaran berhasil",
+				uid,
+			}
 		}
+
 		const response = await axios.post('https://fcm.googleapis.com/fcm/send', message, {
 			headers: {
 				'Content-Type': 'application/json',

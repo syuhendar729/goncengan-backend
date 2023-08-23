@@ -115,6 +115,7 @@ const notificationTransaction = async (req, res) => {
 			const bookingRoomData = await bookingRoomDoc.get()
             await walletDoc.update({
                 balance: FieldValue.increment(amount),
+				totalAmountIncome: FieldValue.increment(amount),
                 dataIncome: FieldValue.arrayUnion({
 					paymentId: orderId,
                     amount,
@@ -128,10 +129,10 @@ const notificationTransaction = async (req, res) => {
 			}
 			const notifDataDriver = { 
 				title: 'Status Pembayaran',
-				message: `Status pembayaran anda berhasil dengan id ${orderId} dan harga ${amount}!`
+				message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`
 			}
-			sendNotification(bookingRoomData.data().passenger.uid, notifDataPassenger)
-			sendNotification(bookingRoomData.data().driver.uid, notifDataDriver)
+			sendNotification(bookingRoomData.data().passenger.uid, notifDataPassenger, bookingRoomData.data().driver.uid)
+			sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid)
         }
     } catch (error) {
         console.error(error)

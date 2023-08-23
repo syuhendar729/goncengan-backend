@@ -61,7 +61,7 @@ const passengerCreateRoom = async (req, res) => {
 
         if (bookingRoomData.data().passenger === null) {
             await bookingRoomDoc.update({ 
-				distance, isBooked: true, price, 
+				distance, price, 
 				passenger: { ...resPass, departure, destination }, 
 				users: FieldValue.arrayUnion(req.uid) 
 			})

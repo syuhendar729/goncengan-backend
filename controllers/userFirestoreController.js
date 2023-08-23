@@ -22,7 +22,10 @@ const userFirestoreCreate = async (req, res) => {
 		// await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
 		const { email } = userRecord.toJSON()
 		await Users.doc(uid).set({ uid, email, isDisabled: false, ...data })
-		await Wallet.doc(uid).set({ userId: uid, balance: 0, dataIncome: [], dataExpense: [] })
+		await Wallet.doc(uid).set({ 
+			userId: uid, balance: 0, dataIncome: [], dataExpense: [],
+			totalAmountIncome: 0, totalAmountExpense: 0, rekening: null 
+		})
         res.send({ message: 'Successfully created user!', data })
     } catch (error) {
         console.error(error)

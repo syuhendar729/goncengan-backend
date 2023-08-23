@@ -49,14 +49,20 @@ const getWalletAllData = async (req, res) => {
 const payoutRequest = async (req, res) => {
     try {
         const payoutDoc = Payout.doc()
-        await payoutDoc.set({
-            payoutId: payoutDoc.id,
-            payoutTime: Timestamp.fromDate(new Date()),
-            amount: req.body.amount,
-            payoutStatus: 'pending',
-            driverId: req.uid,
-        })
-        res.send({ message: 'Successfully request payout', data: req.body })
+		const walletData = await Wallet.doc(req.uid).get()
+		const amount = req.body.amount
+		const balance = walletData.data().balance
+		if (balance < amount) res.send({ message: "Your balance is less than, can't request payout", data: { balance } })
+		else {
+			await payoutDoc.set({
+				payoutId: payoutDoc.id,
+				payoutTime: Timestamp.fromDate(new Date()),
+				amount,
+				payoutStatus: 'pending',
+				driverId: req.uid,
+			})
+			res.send({ message: 'Successfully request payout', data: { balanceBefore: balance, balanceAfter: balance-amount } })
+		}
     } catch (error) {
         console.error(error)
         res.status(500).send({ error })
