@@ -10,25 +10,25 @@ const axios = require('axios')
 
 const createTransaction = async (req, res) => {
     try {
-		const bookingId = req.body.bookingId
-		const bookingRoomDoc = BookingRoom.doc(bookingId)
-		const bookingRoomData = await bookingRoomDoc.get()
-		const { passenger, price } = bookingRoomData.data()
+        const bookingId = req.body.bookingId
+        const bookingRoomDoc = BookingRoom.doc(bookingId)
+        const bookingRoomData = await bookingRoomDoc.get()
+        const { passenger, price } = bookingRoomData.data()
         const payDoc = Payment.doc(bookingId)
         await payDoc.set({
             orderId: payDoc.id,
             driverId: req.uid,
             passengerId: passenger.uid,
-			bookingId
+            bookingId,
         })
         const driver = await getUserById(req.uid)
-		const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
+        const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
         const { token, redirect_url: redirectUrl } = transaction
         await payDoc.update({ token, redirectUrl })
-		await bookingRoomDoc.update({ paymentId: payDoc.id })
+        await bookingRoomDoc.update({ paymentId: payDoc.id })
         res.send({
             message: 'Successfully created transaction!',
-			data: { token, redirectUrl }
+            data: { token, redirectUrl },
         })
     } catch (error) {
         console.error(error)
@@ -92,8 +92,8 @@ const notificationTransaction = async (req, res) => {
 
         const driverId = payData.data().driverId
         const walletDoc = Wallet.doc(driverId)
-		const bookingId = payData.data().bookingId
-		const bookingRoomDoc = BookingRoom.doc(bookingId)
+        const bookingId = payData.data().bookingId
+        const bookingRoomDoc = BookingRoom.doc(bookingId)
 
         if (!payData.exists) throw new Error(`Payment id: ${orderId} not found!`)
         else if (transactionStatus === 'expire' || transactionStatus === 'pending' || transactionStatus == undefined) {
@@ -112,27 +112,31 @@ const notificationTransaction = async (req, res) => {
             transactionStatusNew === 'settlement'
         ) {
             console.log('Wallet update: ', { orderId, amount, timeDate: new Date() })
-			const bookingRoomData = await bookingRoomDoc.get()
+            const bookingRoomData = await bookingRoomDoc.get()
             await walletDoc.update({
                 balance: FieldValue.increment(amount),
-				totalAmountIncome: FieldValue.increment(amount),
+                totalAmountIncome: FieldValue.increment(amount),
                 dataIncome: FieldValue.arrayUnion({
-					paymentId: orderId,
+                    paymentId: orderId,
                     amount,
                     timeDate: Timestamp.fromDate(new Date(transaction_time)),
                 }),
             })
-			await bookingRoomDoc.update({ isPayed: true })
-			const notifDataPassenger = { 
-				title: 'Status Pembayaran',
-				message: `Anda berhasil membayar senilai Rp${amount} dengan ID ${orderId}!`
-			}
-			const notifDataDriver = { 
-				title: 'Status Pembayaran',
-				message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`
-			}
-			sendNotification(bookingRoomData.data().passenger.uid, notifDataPassenger, bookingRoomData.data().driver.uid)
-			sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid)
+            await bookingRoomDoc.update({ isPayed: true })
+            const notifDataPassenger = {
+                title: 'Status Pembayaran',
+                message: `Anda berhasil membayar senilai Rp${amount} dengan ID ${orderId}!`,
+            }
+            const notifDataDriver = {
+                title: 'Status Pembayaran',
+                message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`,
+            }
+            sendNotification(
+                bookingRoomData.data().passenger.uid,
+                notifDataPassenger,
+                bookingRoomData.data().driver.uid,
+            )
+            sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid)
         }
     } catch (error) {
         console.error(error)
@@ -168,12 +172,12 @@ const errorTransaction = async (req, res) => {
         const dataStatus = await axios.get(url, config)
         const transaction = await createExpireTransaction(orderId, dataStatus.data)
         res.send({
-			message: 'Successfully create expired transaction!',
-			data: {
-				newToken: transaction.token,
-				newRedirectUrl: transaction.redirect_url,
-				dataStatus: dataStatus.data,
-			}
+            message: 'Successfully create expired transaction!',
+            data: {
+                newToken: transaction.token,
+                newRedirectUrl: transaction.redirect_url,
+                dataStatus: dataStatus.data,
+            },
         })
     } catch (error) {
         console.error(error)
@@ -181,20 +185,22 @@ const errorTransaction = async (req, res) => {
     }
 }
 
-
 const getDetailTransaction = async (req, res) => {
-	try {
-		const payData = await Payment.doc(req.body.paymentId).get()
-		const { transactionTime, expiredTime, ...data } = payData.data()
-		res.send({ message: 'Successfully get detail transaction!', data: { 
-			transactionTime: transactionTime.toDate(), 
-			expiredTime: expiredTime.toDate(), 
-			...data 
-		} })
-	} catch (error) {
-		console.log(error)
-		res.status(500).send({ message: 'Failed get detail transaction!', error })
-	}
+    try {
+        const payData = await Payment.doc(req.body.paymentId).get()
+        const { transactionTime, expiredTime, ...data } = payData.data()
+        res.send({
+            message: 'Successfully get detail transaction!',
+            data: {
+                transactionTime: transactionTime.toDate(),
+                expiredTime: expiredTime.toDate(),
+                ...data,
+            },
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ message: 'Failed get detail transaction!', error })
+    }
 }
 
 module.exports = {
@@ -203,5 +209,5 @@ module.exports = {
     notificationTransaction,
     getStatusTransaction,
     errorTransaction,
-	getDetailTransaction
+    getDetailTransaction,
 }

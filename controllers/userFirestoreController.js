@@ -17,15 +17,20 @@ const userFirestoreCreate = async (req, res) => {
     try {
         const uid = req.uid
         const data = req.body
-		const userRecord = await getAuth().getUser(uid)
-		// const { email, displayName } = userRecord.toJSON()
-		// await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
-		const { email } = userRecord.toJSON()
-		await Users.doc(uid).set({ uid, email, isDisabled: false, ...data })
-		await Wallet.doc(uid).set({ 
-			userId: uid, balance: 0, dataIncome: [], dataExpense: [],
-			totalAmountIncome: 0, totalAmountExpense: 0, rekening: null 
-		})
+        const userRecord = await getAuth().getUser(uid)
+        // const { email, displayName } = userRecord.toJSON()
+        // await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
+        const { email } = userRecord.toJSON()
+        await Users.doc(uid).set({ uid, email, isDisabled: false, ...data })
+        await Wallet.doc(uid).set({
+            userId: uid,
+            balance: 0,
+            dataIncome: [],
+            dataExpense: [],
+            totalAmountIncome: 0,
+            totalAmountExpense: 0,
+            rekening: null,
+        })
         res.send({ message: 'Successfully created user!', data })
     } catch (error) {
         console.error(error)
@@ -34,17 +39,17 @@ const userFirestoreCreate = async (req, res) => {
 }
 
 const userFirestoreUpdate = async (req, res) => {
-	try {
-		const data = req.body
-		const uid = req.uid
+    try {
+        const data = req.body
+        const uid = req.uid
         const userRecord = await getAuth().updateUser(uid, { email: data.email, displayName: data.name })
         const user = Users.doc(uid)
-		await user.update({ ...data })
+        await user.update({ ...data })
         res.send({ message: 'Successfully updated the user!', data: { userRecord } })
-	} catch (error) {
-		console.log(error)
+    } catch (error) {
+        console.log(error)
         res.status(500).send({ message: 'Failed to update user!', error })
-	}
+    }
 }
 
 const getUsersWhere = async (key, assign, value) => {

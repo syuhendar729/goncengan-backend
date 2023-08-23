@@ -12,7 +12,7 @@ const userCreateSchema = Joi.object({
     urlToStudentCard: Joi.string().uri().required(),
     avatar: Joi.string().allow(null).optional(),
     isVerified: Joi.boolean().optional(),
-	fcmToken: Joi.string().allow(null).optional()
+    fcmToken: Joi.string().allow(null).optional(),
 })
 
 const userUpdateSchema = Joi.object({

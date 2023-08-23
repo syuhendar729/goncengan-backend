@@ -28,17 +28,24 @@ orderRoute
 orderRoute
     .route('/passenger-getroom')
     .post(userAuth, isActiveRoom, validator.body(passengerGetRoomSchema), joiErrorHandling, passengerGetRoom)
+orderRoute.route('/driver-cancelroom/:bookingId').delete(userAuth, isActiveDriver, driverCancelRoom)
 orderRoute
-	.route('/driver-cancelroom/:bookingId')
-	.delete(userAuth, isActiveDriver, driverCancelRoom)
+    .route('/passenger-cancelroom')
+    .patch(
+        userAuth,
+        isActivePassenger,
+        validator.body(Joi.object({ bookingId: Joi.string().required() })),
+        joiErrorHandling,
+        passengerCancelRoom,
+    )
 orderRoute
-	.route('/passenger-cancelroom')
-	.patch(userAuth, isActivePassenger, 
-		validator.body(Joi.object({ bookingId: Joi.string().required() })), joiErrorHandling, passengerCancelRoom)
-orderRoute
-	.route('/driver-cancelroom')
-	.patch(userAuth, isActiveDriver, 
-		validator.body(Joi.object({ bookingId: Joi.string().required() })), joiErrorHandling, passengerCancelRoom)
-
+    .route('/driver-cancelroom')
+    .patch(
+        userAuth,
+        isActiveDriver,
+        validator.body(Joi.object({ bookingId: Joi.string().required() })),
+        joiErrorHandling,
+        passengerCancelRoom,
+    )
 
 module.exports = orderRoute

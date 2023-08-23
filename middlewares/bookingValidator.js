@@ -1,7 +1,7 @@
 const Joi = require('joi')
 
 const driverCreateRoomSchema = Joi.object({
-	departureDate: Joi.string().required() ,
+    departureDate: Joi.string().required(),
     driver: Joi.object({
         departure: Joi.object({
             formattedAddress: Joi.string().allow(null).required(),

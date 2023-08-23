@@ -16,5 +16,4 @@ walletRoute.route('/get-expense').get(userAuth, getWalletExpense)
 walletRoute.route('/get-alldata').get(userAuth, getWalletAllData)
 walletRoute.route('/payout-request').post(userAuth, payoutRequest)
 
-
 module.exports = walletRoute

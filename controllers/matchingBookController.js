@@ -38,17 +38,17 @@ const resultBookingRoom = async (passenger, reqPrice) => {
             // Filter by departureDate???
             // const { departureDate, price, driver, ...data } = doc.data()
             const { departureDate, price, ...data } = doc.data()
-			const departureDateJS = departureDate.toDate()
+            const departureDateJS = departureDate.toDate()
             if (departureDistance <= 3000 && destinationDistance <= 3000 && departureDateJS > new Date()) {
-				// console.log({ departureDistance, destinationDistance })
-				// const user = await Users.doc(driver.uid).get()
-				// const { name, nim, avatar, fcmToken, uid } = user.data()
-                result.push({ 
-					price: reqPrice, 
-					departureDate: departureDateJS, 
-					// driver: { name, nim, avatar, fcmToken, uid, departure, destination },
-					...data 
-				})
+                // console.log({ departureDistance, destinationDistance })
+                // const user = await Users.doc(driver.uid).get()
+                // const { name, nim, avatar, fcmToken, uid } = user.data()
+                result.push({
+                    price: reqPrice,
+                    departureDate: departureDateJS,
+                    // driver: { name, nim, avatar, fcmToken, uid, departure, destination },
+                    ...data,
+                })
             }
         })
 
