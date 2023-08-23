@@ -12,7 +12,10 @@ const isValidBooking = async (req, res, next) => {
         const bookingId = req.body.bookingId
         const payData = await Payment.doc(bookingId).get()
         if (!payData.exists) next()
-        else res.send({ message: "Transaction has been create, can't create a new transaction!" })
+		else res.send({ message: "Transaction has been create, can't create a new transaction!", data: {
+			token: payData.data().token,
+			redirectUrl: payData.data().redirectUrl
+		} })
     } catch (error) {
         console.log(error)
         res.status(500).send({ message: 'Failed check exist transaction!' })
