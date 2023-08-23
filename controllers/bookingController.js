@@ -64,7 +64,7 @@ const passengerCreateRoom = async (req, res) => {
         const destination = req.body.passenger.destination
 
         // testing
-        await BookingRoom.doc('check_distance').update({ createRoom: distance })
+        // await BookingRoom.doc('check_distance').update({ createRoom: distance })
 
         if (bookingRoomData.data().passenger === null) {
             await bookingRoomDoc.update({
@@ -91,14 +91,14 @@ const passengerGetRoom = async (req, res) => {
         const bookingRooms = await resultBookingRoom(req.body.passenger, price)
 
         // testing
-        await BookingRoom.doc('check_distance').update({ getRoom: distance })
+        // await BookingRoom.doc('check_distance').update({ getRoom: distance })
 
         if (bookingRooms.length != 0)
             res.send({ message: 'BookingRoom found!', data: { distance, price, bookingRooms } })
         else
             res.status(404).send({
                 message: 'No BookingRoom and drivers match!',
-                data: { distance, price, bookingRooms: [] },
+                data: { distance, price, bookingRooms },
             })
     } catch (error) {
         console.log(error)
