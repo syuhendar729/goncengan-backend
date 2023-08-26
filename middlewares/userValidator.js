@@ -3,7 +3,7 @@ const Joi = require('joi')
 const userCreateSchema = Joi.object({
     name: Joi.string().min(3).optional(),
     nim: Joi.string().required(),
-    email: Joi.string().email().optional(),
+    email: Joi.string().email().regex(/@apps\.ipb\.ac\.id$/).optional(),
     address: Joi.object({
         formattedAddress: Joi.string().allow(null),
         latitude: Joi.number(),

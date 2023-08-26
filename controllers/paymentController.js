@@ -4,6 +4,7 @@ const Wallet = db('wallet')
 const BookingRoom = db('booking_room')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
+const { updateWalletIncome } = require('./walletController')
 const { sendNotification } = require('./fcmController')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
 const axios = require('axios')
@@ -113,7 +114,8 @@ const notificationTransaction = async (req, res) => {
         ) {
             console.log('Wallet update: ', { orderId, amount, timeDate: new Date() })
             const bookingRoomData = await bookingRoomDoc.get()
-            await walletDoc.update({
+			await updateWalletIncome(driverId, amount, { transactionTime: transaction_time, paymentId: orderId })
+            /* await walletDoc.update({
                 balance: FieldValue.increment(amount),
                 totalAmountIncome: FieldValue.increment(amount),
                 dataIncome: FieldValue.arrayUnion({
@@ -121,7 +123,7 @@ const notificationTransaction = async (req, res) => {
                     amount,
                     timeDate: Timestamp.fromDate(new Date(transaction_time)),
                 }),
-            })
+            }) */
             await bookingRoomDoc.update({ isPayed: true })
             const notifDataPassenger = {
                 title: 'Status Pembayaran',

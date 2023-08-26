@@ -17,11 +17,16 @@ const userFirestoreCreate = async (req, res) => {
     try {
         const uid = req.uid
         const data = req.body
-        const userRecord = await getAuth().getUser(uid)
         // const { email, displayName } = userRecord.toJSON()
         // await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
-        const { email } = userRecord.toJSON()
-        await Users.doc(uid).set({ uid, email, isDisabled: false, ...data })
+		if (req.body.email === undefined) {
+        	const userRecord = await getAuth().getUser(uid)
+        	const { email } = userRecord.toJSON()
+        	await Users.doc(uid).set({ uid, email, isDisabled: false, ...data })
+		} else {
+        	await Users.doc(uid).set({ uid, isDisabled: false, ...data })
+		}
+		
         await Wallet.doc(uid).set({
             userId: uid,
             balance: 0,

@@ -8,6 +8,7 @@ const {
     passengerGetRoom,
     driverCancelRoom,
     passengerCancelRoom,
+	getRoomCurrentLocation
 } = require('../controllers/bookingController')
 const { userAuth } = require('../middlewares/userAuth')
 const {
@@ -47,5 +48,8 @@ orderRoute
         joiErrorHandling,
         passengerCancelRoom,
     )
+orderRoute
+    .route('/liveroom')
+    .post(userAuth, isActiveRoom, getRoomCurrentLocation)
 
 module.exports = orderRoute

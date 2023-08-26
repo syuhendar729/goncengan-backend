@@ -59,4 +59,30 @@ const resultBookingRoom = async (passenger, reqPrice) => {
     }
 }
 
-module.exports = { resultBookingRoom }
+const resultLiveRoom = async (currentLocation) => {
+	try {
+		const result = []
+		const bookingRoomData = await BookingRoom.where('passenger', '==', null).get()
+		bookingRoomData.forEach((doc) => {
+            const departure = doc.data().driver.departure
+            const departureDistance = calculateDistance(
+                departure.latitude,
+                departure.longitude,
+                currentLocation.latitude,
+                currentLocation.longitude,
+            )
+            const { departureDate, price, ...data } = doc.data()
+            const departureDateJS = departureDate.toDate()
+			if (departureDistance <= 3000 && departureDateJS > new Date()) {
+                result.push({ departureDistance, departureDate: departureDateJS, ...data })
+			}
+		})
+
+        return result
+	} catch (error) {
+        console.log(error)
+        throw new Error("Can't result driver")
+	}
+}
+
+module.exports = { resultBookingRoom, resultLiveRoom }

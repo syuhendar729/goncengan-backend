@@ -2,7 +2,7 @@ const { Timestamp, Filter, FieldValue } = require('firebase-admin/firestore')
 
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
 
-const { resultBookingRoom } = require('./matchingBookController')
+const { resultBookingRoom, resultLiveRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
 
 const userSend = (user) => {
@@ -23,13 +23,15 @@ const bookingPrice = (distance) => {
 
 const driverCreateRoom = async (req, res) => {
     try {
-        const bookingRoomDoc = BookingRoom.doc()
-        const bookingId = bookingRoomDoc.id
         const driver = await getUserById(req.uid)
         const resDriver = userSend(driver)
         const departure = req.body.driver.departure
         const destination = req.body.driver.destination
-        await bookingRoomDoc.set({
+		// const bookingId = driver.email.split('@')[0] + '_' + BookingRoom.doc().id
+        // await BookingRoom.doc(bookingId).set({
+		const bookingRoomDoc = BookingRoom.doc()
+		const bookingId = bookingRoomDoc.id
+		await bookingRoomDoc.set({
             bookingId,
             chatRoomId: null,
             departureDate: Timestamp.fromDate(new Date(req.body.departureDate)),
@@ -146,10 +148,28 @@ const passengerCancelRoom = async (req, res) => {
     }
 }
 
+const getRoomCurrentLocation = async (req, res) => {
+	try {
+        // const price = bookingPrice(distance)
+        const bookingRooms = await resultLiveRoom(req.body.currentLocation)
+        if (bookingRooms.length != 0)
+            res.send({ message: 'BookingRoom found!', data: { bookingRooms } })
+        else
+            res.status(404).send({
+                message: 'No BookingRoom and drivers match!',
+                data: { bookingRooms },
+            })
+	} catch (error) {
+		console.log(error)
+        res.status(500).send({ message: 'Failed to get live BookingRoom and drivers!', error })
+	}
+}
+
 module.exports = {
     driverCreateRoom,
     passengerCreateRoom,
     passengerGetRoom,
     driverCancelRoom,
     passengerCancelRoom,
+	getRoomCurrentLocation
 }
