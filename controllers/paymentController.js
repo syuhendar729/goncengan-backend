@@ -1,13 +1,14 @@
+const { Timestamp, FieldValue } = require('firebase-admin/firestore')
+const axios = require('axios')
 const db = require('../instances/firestoreInstance')
 const Payment = db('payment')
 const Wallet = db('wallet')
 const BookingRoom = db('booking_room')
+const Summary = db('summary')
 const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
 const { updateWalletIncome } = require('./walletController')
 const { sendNotification } = require('./fcmController')
-const { Timestamp, FieldValue } = require('firebase-admin/firestore')
-const axios = require('axios')
 
 const createTransaction = async (req, res) => {
     try {
@@ -115,16 +116,13 @@ const notificationTransaction = async (req, res) => {
             console.log('Wallet update: ', { orderId, amount, timeDate: new Date() })
             const bookingRoomData = await bookingRoomDoc.get()
 			await updateWalletIncome(driverId, amount, { transactionTime: transaction_time, paymentId: orderId })
-            /* await walletDoc.update({
-                balance: FieldValue.increment(amount),
-                totalAmountIncome: FieldValue.increment(amount),
-                dataIncome: FieldValue.arrayUnion({
-                    paymentId: orderId,
-                    amount,
-                    timeDate: Timestamp.fromDate(new Date(transaction_time)),
-                }),
-            }) */
             await bookingRoomDoc.update({ isPayed: true })
+			await Summary.doc('total_booking').update({ count_payed: FieldValue.increment(1) })
+			await Summary.doc('total_payment').update({ count_all: FieldValue.increment(1) })
+			await Summary.doc('total_payment').update({ count_success: FieldValue.increment(1) })
+			if (transactionStatus === 'expire' && transactionStatusNew === 'settlement') {
+				await Summary.doc('total_payment').update({ count_expire: FieldValue.increment(-1) })
+			}
             const notifDataPassenger = {
                 title: 'Status Pembayaran',
                 message: `Anda berhasil membayar senilai Rp${amount} dengan ID ${orderId}!`,

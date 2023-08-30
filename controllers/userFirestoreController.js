@@ -1,6 +1,8 @@
 const { getAuth } = require('firebase-admin/auth')
+const { FieldValue } = require('firebase-admin/firestore')
 const Users = require('../instances/firestoreInstance')('users')
 const Wallet = require('../instances/firestoreInstance')('wallet')
+const Summary = require('../instances/firestoreInstance')('summary')
 
 const userFirestoreDetail = async (req, res) => {
     try {
@@ -17,8 +19,6 @@ const userFirestoreCreate = async (req, res) => {
     try {
         const uid = req.uid
         const data = req.body
-        // const { email, displayName } = userRecord.toJSON()
-        // await Users.doc(uid).set({ uid, name: displayName, email, isDisabled: false, ...data })
 		if (req.body.email === undefined) {
         	const userRecord = await getAuth().getUser(uid)
         	const { email } = userRecord.toJSON()
@@ -36,7 +36,8 @@ const userFirestoreCreate = async (req, res) => {
             totalAmountExpense: 0,
             rekening: null,
         })
-        res.send({ message: 'Successfully created user!', data })
+		await Summary.doc('total_users').update({ count_all: FieldValue.increment(1) })
+        res.send({ message: 'Successfully created user!', data: { uid, ...data } })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: `Failed to created user!`, error })

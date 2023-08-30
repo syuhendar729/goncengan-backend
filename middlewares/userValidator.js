@@ -9,7 +9,7 @@ const userCreateSchema = Joi.object({
         latitude: Joi.number(),
         longitude: Joi.number(),
     }).required(),
-    urlToStudentCard: Joi.string().uri().required(),
+    fakultas: Joi.string().required(),
     avatar: Joi.string().allow(null).optional(),
     isVerified: Joi.boolean().optional(),
     fcmToken: Joi.string().allow(null).optional(),
@@ -24,7 +24,7 @@ const userUpdateSchema = Joi.object({
         latitude: Joi.number().optional(),
         longitude: Joi.number().optional(),
     }).optional(),
-    urlToStudentCard: Joi.string().uri().optional(),
+    fakultas: Joi.string().optional(),
     avatar: Joi.string().allow(null).optional(),
 })
 

@@ -1,5 +1,6 @@
 const Wallet = require('../instances/firestoreInstance')('wallet')
 const Payout = require('../instances/firestoreInstance')('payout')
+const Summary = require('../instances/firestoreInstance')('summary')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
 
 const getWalletBalance = async (req, res) => {
@@ -100,6 +101,7 @@ const updateWalletIncome = async (walletId, income, data) => {
                 timeDate: Timestamp.fromDate(new Date(data.transactionTime)),
             }),
 		})
+		await Summary.doc('total_wallet').update({ income_admin: FieldValue.increment(adminIncome) })
 		await walletDocDriver.update({ 
             balance: FieldValue.increment(driverIncome),
             totalAmountIncome: FieldValue.increment(driverIncome),
@@ -109,6 +111,7 @@ const updateWalletIncome = async (walletId, income, data) => {
                 timeDate: Timestamp.fromDate(new Date(data.transactionTime)),
             }),
 		})
+		await Summary.doc('total_wallet').update({ income_all_users: FieldValue.increment(driverIncome) })
 	} catch (error) {
 		console.error(error)
 		throw new Error('Failed to update Wallet for Driver and Admin')

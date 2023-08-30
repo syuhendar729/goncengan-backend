@@ -1,7 +1,6 @@
 const { Timestamp, Filter, FieldValue } = require('firebase-admin/firestore')
-
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
-
+const Summary = require('../instances/firestoreInstance')('summary')
 const { resultBookingRoom, resultLiveRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
 
@@ -47,6 +46,7 @@ const driverCreateRoom = async (req, res) => {
             price: null,
             users: FieldValue.arrayUnion(req.uid),
         })
+		await Summary.doc('total_booking').update({ count_all: FieldValue.increment(1) })
         res.send({ message: 'Successfully create booking_room!', data: { bookingId } })
     } catch (error) {
         console.log(error)
@@ -150,7 +150,6 @@ const passengerCancelRoom = async (req, res) => {
 
 const getRoomCurrentLocation = async (req, res) => {
 	try {
-        // const price = bookingPrice(distance)
         const bookingRooms = await resultLiveRoom(req.body.currentLocation)
         if (bookingRooms.length != 0)
             res.send({ message: 'BookingRoom found!', data: { bookingRooms } })
