@@ -8,7 +8,8 @@ const {
     passengerGetRoom,
     driverCancelRoom,
     passengerCancelRoom,
-	getRoomCurrentLocation
+	getRoomCurrentLocation,
+	passengerGetPrice
 } = require('../controllers/bookingController')
 const { userAuth } = require('../middlewares/userAuth')
 const {
@@ -20,6 +21,13 @@ const { joiErrorHandling } = require('../middlewares/joiError')
 const { isActiveRoom, isActiveDriver, isActivePassenger } = require('../middlewares/roleActive')
 
 const orderRoute = express.Router()
+
+orderRoute.route('/get-price').get(
+	userAuth, 
+	validator.body(Joi.object({ distance: Joi.number().required() })), 
+	joiErrorHandling,
+	passengerGetPrice
+)
 orderRoute
     .route('/driver-bookingroom')
     .post(userAuth, isActiveRoom, validator.body(driverCreateRoomSchema), joiErrorHandling, driverCreateRoom)

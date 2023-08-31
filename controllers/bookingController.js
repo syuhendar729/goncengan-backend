@@ -65,9 +65,6 @@ const passengerCreateRoom = async (req, res) => {
         const departure = req.body.passenger.departure
         const destination = req.body.passenger.destination
 
-        // testing
-        // await BookingRoom.doc('check_distance').update({ createRoom: distance })
-
         if (bookingRoomData.data().passenger === null) {
             await bookingRoomDoc.update({
                 distance,
@@ -92,13 +89,10 @@ const passengerGetRoom = async (req, res) => {
         const price = bookingPrice(distance)
         const bookingRooms = await resultBookingRoom(req.body.passenger, price)
 
-        // testing
-        // await BookingRoom.doc('check_distance').update({ getRoom: distance })
-
         if (bookingRooms.length != 0)
             res.send({ message: 'BookingRoom found!', data: { distance, price, bookingRooms } })
         else
-            res.status(404).send({
+            res.send({
                 message: 'No BookingRoom and drivers match!',
                 data: { distance, price, bookingRooms },
             })
@@ -113,6 +107,7 @@ const driverCancelRoom = async (req, res) => {
         const bookingId = req.params.bookingId
         const bookingRoomDoc = BookingRoom.doc(bookingId)
         await bookingRoomDoc.delete()
+		await Summary.doc('total_booking').update({ count_all: FieldValue.increment(-1) })
         res.send({
             message: 'Successfully cancel dan delete BookingRoom from driver!',
             data: { bookingId, driverId: req.uid },
@@ -128,7 +123,6 @@ const passengerCancelRoom = async (req, res) => {
         const userId = req.uid
         const bookingId = req.body.bookingId
         const bookingRoomDoc = BookingRoom.doc(bookingId)
-        // const bookingRoomData = await bookingRoomDoc.get()
         const bookingRoomData = req.bookingRoomData
         const { passenger, driver } = bookingRoomData
         if (passenger === null) res.status(400).send({ message: "Passenger is null, can't cancel BookingRoom!" })
@@ -154,7 +148,7 @@ const getRoomCurrentLocation = async (req, res) => {
         if (bookingRooms.length != 0)
             res.send({ message: 'BookingRoom found!', data: { bookingRooms } })
         else
-            res.status(404).send({
+            res.send({
                 message: 'No BookingRoom and drivers match!',
                 data: { bookingRooms },
             })
@@ -164,11 +158,23 @@ const getRoomCurrentLocation = async (req, res) => {
 	}
 }
 
+const passengerGetPrice = async (req, res) => {
+	try {
+		const distance = req.body.distance
+		const price = bookingPrice(distance)
+		res.send({ message: 'Successfully get price!', data: { distance, price } })
+	} catch (error) {
+		console.log(error)
+		res.status(500).send({ message: '', error })
+	}
+}
+
 module.exports = {
     driverCreateRoom,
     passengerCreateRoom,
     passengerGetRoom,
     driverCancelRoom,
     passengerCancelRoom,
-	getRoomCurrentLocation
+	getRoomCurrentLocation,
+	passengerGetPrice
 }
