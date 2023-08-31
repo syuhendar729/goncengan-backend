@@ -23,22 +23,7 @@ const orderRoute = express.Router()
 orderRoute
     .route('/driver-bookingroom')
     .post(userAuth, isActiveRoom, validator.body(driverCreateRoomSchema), joiErrorHandling, driverCreateRoom)
-orderRoute
-    .route('/passenger-bookingroom')
-    .post(userAuth, isActiveRoom, validator.body(passengerCreateRoomSchema), joiErrorHandling, passengerCreateRoom)
-orderRoute
-    .route('/passenger-getroom')
-    .post(userAuth, isActiveRoom, validator.body(passengerGetRoomSchema), joiErrorHandling, passengerGetRoom)
 orderRoute.route('/driver-cancelroom/:bookingId').delete(userAuth, isActiveDriver, driverCancelRoom)
-orderRoute
-    .route('/passenger-cancelroom')
-    .patch(
-        userAuth,
-        isActivePassenger,
-        validator.body(Joi.object({ bookingId: Joi.string().required() })),
-        joiErrorHandling,
-        passengerCancelRoom,
-    )
 orderRoute
     .route('/driver-cancelroom')
     .patch(
@@ -49,7 +34,22 @@ orderRoute
         passengerCancelRoom,
     )
 orderRoute
+    .route('/passenger-bookingroom')
+    .patch(userAuth, isActiveRoom, validator.body(passengerCreateRoomSchema), joiErrorHandling, passengerCreateRoom)
+orderRoute
+    .route('/passenger-getroom')
+    .get(userAuth, isActiveRoom, validator.body(passengerGetRoomSchema), joiErrorHandling, passengerGetRoom)
+orderRoute
+    .route('/passenger-cancelroom')
+    .patch(
+        userAuth,
+        isActivePassenger,
+        validator.body(Joi.object({ bookingId: Joi.string().required() })),
+        joiErrorHandling,
+        passengerCancelRoom,
+    )
+orderRoute
     .route('/liveroom')
-    .post(userAuth, isActiveRoom, getRoomCurrentLocation)
+    .get(userAuth, isActiveRoom, getRoomCurrentLocation)
 
 module.exports = orderRoute
