@@ -1,3 +1,4 @@
+// const moment = require('moment')
 const { getUsersWhere, getUserById } = require('./userFirestoreController')
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
 const Users = require('../instances/firestoreInstance')('users')
@@ -39,6 +40,7 @@ const resultBookingRoom = async (passenger, reqPrice) => {
             // const { departureDate, price, driver, ...data } = doc.data()
             const { departureDate, price, ...data } = doc.data()
             const departureDateJS = departureDate.toDate()
+			// const formattedDate = moment(departureDateJS).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
             if (departureDistance <= 3000 && destinationDistance <= 3000 && departureDateJS > new Date()) {
                 // console.log({ departureDistance, destinationDistance })
                 // const user = await Users.doc(driver.uid).get()
@@ -46,6 +48,7 @@ const resultBookingRoom = async (passenger, reqPrice) => {
                 result.push({
                     price: reqPrice,
                     departureDate: departureDateJS,
+                    // departureDate: formattedDate,
                     // driver: { name, nim, avatar, fcmToken, uid, departure, destination },
                     ...data,
                 })

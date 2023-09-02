@@ -3,8 +3,15 @@ const Joi = require('joi')
 
 const createTransactionSchema = Joi.object({
     bookingId: Joi.string().required(),
-    // passengerId: Joi.string().required(),
-    // price: Joi.number().required()
+})
+
+const payoutRequestSchema = Joi.object({ 
+	amount: Joi.number().required(), 
+	rekening: Joi.object({
+		type: Joi.string().required(),
+		provider: Joi.string().required(),
+		number: Joi.alternatives().conditional('type', { is: 'E-Wallet', then: Joi.string().pattern(/^\+62[0-9]+$/), otherwise: Joi.string().pattern(/^[0-9]+$/) }).required()
+	}) 
 })
 
 const isValidBooking = async (req, res, next) => {
@@ -22,4 +29,4 @@ const isValidBooking = async (req, res, next) => {
     }
 }
 
-module.exports = { createTransactionSchema, isValidBooking }
+module.exports = { createTransactionSchema, payoutRequestSchema, isValidBooking }

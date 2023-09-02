@@ -1,3 +1,4 @@
+const moment = require('moment')
 const Wallet = require('../instances/firestoreInstance')('wallet')
 const Payout = require('../instances/firestoreInstance')('payout')
 const Summary = require('../instances/firestoreInstance')('summary')
@@ -38,9 +39,16 @@ const getWalletExpense = async (req, res) => {
 
 const getWalletAllData = async (req, res) => {
     try {
+		const dataIncomeFormatted = []
         const walletDoc = Wallet.doc(req.uid)
         const walletData = await walletDoc.get()
-        res.send({ message: 'Successfully get all data', data: walletData.data() })
+		const { dataIncome, ...data } = walletData.data()
+		dataIncome.forEach((income) => {
+			const { timeDate, ...other } = income
+			const formattedDate = moment(income.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			dataIncomeFormatted.push({ timeDate: formattedDate, ...other })
+		})
+        res.send({ message: 'Successfully get all data', data: { dataIncome: dataIncomeFormatted, ...data } })
     } catch (error) {
         console.error(error)
         res.status(500).send({ message: 'Failed update wallet data!', error })
@@ -67,13 +75,14 @@ const payoutRequest = async (req, res) => {
         if (balance < amount)
             res.send({ message: "Your balance is less than, can't request payout", data: { balance } })
         else {
-            await payoutDoc.set({
-                payoutId: payoutDoc.id,
-                payoutTime: Timestamp.fromDate(new Date()),
-                amount,
-                payoutStatus: 'pending',
-                driverId: req.uid,
-            })
+			await payoutDoc.set({
+				payoutId: payoutDoc.id,
+				payoutTime: Timestamp.fromDate(new Date()),
+				amount,
+				payoutStatus: 'pending',
+				driverId: req.uid,
+				rekening: req.body.rekening
+			})
             res.send({
                 message: 'Successfully request payout',
                 data: { balanceBefore: balance, balanceAfter: balance - amount },

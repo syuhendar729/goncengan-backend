@@ -8,7 +8,7 @@ const userCreateSchema = Joi.object({
         formattedAddress: Joi.string().allow(null),
         latitude: Joi.number(),
         longitude: Joi.number(),
-    }).required(),
+    }).optional(),
     fakultas: Joi.string().required(),
     avatar: Joi.string().allow(null).optional(),
     isVerified: Joi.boolean().optional(),
