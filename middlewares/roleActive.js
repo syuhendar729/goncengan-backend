@@ -14,9 +14,11 @@ const isActiveRoom = async (req, res, next) => {
 			// .count()
             .get()
 		totalRooms.forEach(async (doc) => {
-			if (doc.data().departureDate.toDate() > new Date()) {
+			const departureDate = doc.data().departureDate.toDate()
+			const isArrive = doc.data().departureDate.toDate()
+			if (departureDate > new Date()) {
 				resultRooms.push({ ...doc.data() })
-			} else if (doc.data().departureDate.toDate() < new Date()) {
+			} else if (departureDate < new Date() && doc.data().isBooked === false) {
 				await BookingRoom.doc(doc.id).delete()
 			}
 		})
