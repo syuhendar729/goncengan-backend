@@ -40,15 +40,21 @@ const getWalletExpense = async (req, res) => {
 const getWalletAllData = async (req, res) => {
     try {
 		const dataIncomeFormatted = []
+		const dataExpenseFormatted = []
         const walletDoc = Wallet.doc(req.uid)
         const walletData = await walletDoc.get()
-		const { dataIncome, ...data } = walletData.data()
+		const { dataIncome, dataExpense, ...data } = walletData.data()
 		dataIncome.forEach((income) => {
 			const { timeDate, ...other } = income
 			const formattedDate = moment(income.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
 			dataIncomeFormatted.push({ timeDate: formattedDate, ...other })
 		})
-        res.send({ message: 'Successfully get all data', data: { dataIncome: dataIncomeFormatted, ...data } })
+		dataExpense.forEach((expense) => {
+			const { timeDate, ...other } = expense
+			const formattedDate = moment(expense.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			dataExpenseFormatted.push({ timeDate: formattedDate, ...other })
+		})
+        res.send({ message: 'Successfully get all data', data: { dataIncome: dataIncomeFormatted, dataExpense: dataExpenseFormatted, ...data } })
     } catch (error) {
         console.error(error)
         res.status(500).send({ message: 'Failed update wallet data!', error })
@@ -69,7 +75,8 @@ const updateDataWallet = async (req, res) => {
 const payoutRequest = async (req, res) => {
     try {
         const payoutDoc = Payout.doc()
-        const walletData = await Wallet.doc(req.uid).get()
+		const walletDoc = Wallet.doc(req.uid)
+        const walletData = await walletDoc.get()
         const amount = req.body.amount
         const balance = walletData.data().balance
         if (balance < amount)
@@ -83,9 +90,17 @@ const payoutRequest = async (req, res) => {
 				driverId: req.uid,
 				rekening: req.body.rekening
 			})
+			await walletDoc.update({ 
+				balance: FieldValue.increment(-amount), 
+				dataExpense: FieldValue.arrayUnion({
+					payoutId: payoutDoc.id,
+					amount,
+					timeDate: Timestamp.fromDate(new Date()),
+				}) 
+			})
             res.send({
                 message: 'Successfully request payout',
-                data: { balanceBefore: balance, balanceAfter: balance - amount },
+                data: { amountTaken: amount, balanceBefore: balance, balanceAfter: balance - amount },
             })
         }
     } catch (error) {
@@ -127,6 +142,23 @@ const updateWalletIncome = async (walletId, income, data) => {
 	}
 }
 
+const getDetailPayout = async (req, res) => {
+	try {
+		/* const payouts = await Payout.where('driverId', '==', req.uid).get()
+		const payoutData = []
+		payouts.forEach((doc) => {
+			payoutData.push({ ...doc.data() })
+		}) */
+		const payoutData = await Payout.doc(req.body.payoutId).get()
+		const { payoutTime, ...data } = payoutData.data()
+		const formattedDate = moment(payoutTime.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+		res.send({ message: 'Successfully', data: { payoutTime: formattedDate, ...data } })
+	} catch (error) {
+		console.log(error)
+		res.status(500).send({ message: '', error })
+	}
+}
+
 module.exports = {
     getWalletBalance,
     getWalletIncome,
@@ -134,5 +166,6 @@ module.exports = {
     getWalletAllData,
 	updateDataWallet,
     payoutRequest,
-	updateWalletIncome
+	updateWalletIncome,
+	getDetailPayout
 }

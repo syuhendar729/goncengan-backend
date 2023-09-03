@@ -10,6 +10,7 @@ const {
     getWalletAllData,
 	updateDataWallet,
     payoutRequest,
+	getDetailPayout
 } = require('../controllers/walletController')
 const { payoutRequestSchema } = require('../middlewares/payValidator')
 
@@ -26,5 +27,6 @@ walletRoute.route('/payout-request').post(
 	joiErrorHandling,
 	payoutRequest
 )
+walletRoute.route('/get-detail-payout').get(userAuth, getDetailPayout)
 
 module.exports = walletRoute

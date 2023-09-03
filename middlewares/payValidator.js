@@ -8,7 +8,7 @@ const createTransactionSchema = Joi.object({
 const payoutRequestSchema = Joi.object({ 
 	amount: Joi.number().required(), 
 	rekening: Joi.object({
-		type: Joi.string().required(),
+		type: Joi.string().valid('Bank', 'E-Wallet').required(),
 		provider: Joi.string().required(),
 		number: Joi.alternatives().conditional('type', { is: 'E-Wallet', then: Joi.string().pattern(/^\+62[0-9]+$/), otherwise: Joi.string().pattern(/^[0-9]+$/) }).required()
 	}) 

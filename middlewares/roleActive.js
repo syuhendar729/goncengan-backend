@@ -1,15 +1,26 @@
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
-const { Filter } = require('firebase-admin/firestore')
+const { Filter, Timestamp } = require('firebase-admin/firestore')
 const { getUserById, userFirestoreUpdate } = require('../controllers/userFirestoreController')
 
 const isActiveRoom = async (req, res, next) => {
     try {
         const uid = req.uid
+		const resultRooms = []
         const totalRooms = await BookingRoom.where('isPayed', '==', false)
-            .where(Filter.or(Filter.where('driver.uid', '==', uid), Filter.where('passenger.uid', '==', uid)))
-            .count()
+            .where(Filter.or(
+				Filter.where('driver.uid', '==', uid), 
+				Filter.where('passenger.uid', '==', uid)
+			))
+			// .count()
             .get()
-        if (totalRooms.data().count === 0) next()
+		totalRooms.forEach(async (doc) => {
+			if (doc.data().departureDate.toDate() > new Date()) {
+				resultRooms.push({ ...doc.data() })
+			} else if (doc.data().departureDate.toDate() < new Date()) {
+				await BookingRoom.doc(doc.id).delete()
+			}
+		})
+        if (resultRooms.length === 0) next()
         else res.status(403).send({ message: 'You are now in active room!' })
     } catch (error) {
         console.error(error)
