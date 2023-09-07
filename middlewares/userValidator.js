@@ -1,9 +1,10 @@
 const Joi = require('joi')
 
 const userCreateSchema = Joi.object({
-    name: Joi.string().min(3).optional(),
+    name: Joi.string().min(3).required(),
     nim: Joi.string().required(),
     email: Joi.string().email().regex(/@apps\.ipb\.ac\.id$/).optional(),
+    phoneNumber: Joi.string().pattern(/^[0-9]+$/).required(),
     address: Joi.object({
         formattedAddress: Joi.string().allow(null),
         latitude: Joi.number(),
@@ -19,6 +20,7 @@ const userUpdateSchema = Joi.object({
     name: Joi.string().min(3).optional(),
     nim: Joi.string().optional(),
     email: Joi.string().email().optional(),
+    phoneNumber: Joi.string().pattern(/^[0-9]+$/).optional(),
     address: Joi.object({
         formattedAddress: Joi.string().allow(null).optional(),
         latitude: Joi.number().optional(),
