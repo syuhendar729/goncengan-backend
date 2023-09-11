@@ -7,7 +7,7 @@ const createTransactionSchema = Joi.object({
 
 const payoutRequestSchema = Joi.object({ 
 	// amount: Joi.number().min(21000).required(),
-	amount: Joi.alternatives().conditional('rekening.type', { is: 'E-Wallet', then: Joi.number().min(21000), otherwise: Joi.number().min(22500) }).required()
+	amount: Joi.alternatives().conditional('rekening.type', { is: 'E-Wallet', then: Joi.number().min(21000), otherwise: Joi.number().min(22500) }).required(),
 	rekening: Joi.object({
 		type: Joi.string().valid('Bank', 'E-Wallet').required(),
 		provider: Joi.string().required(),

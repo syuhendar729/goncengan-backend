@@ -14,9 +14,9 @@ const userCreateSchema = Joi.object({
     avatar: Joi.string().allow(null).optional(),
     isVerified: Joi.boolean().optional(),
     fcmToken: Joi.string().allow(null).optional(),
-    gender: Joi.().string().valid('male', 'female').optional(),
-    semester: Joi.().number().optional(),
-    rating: Joi.().number().max(5).optional(),
+    gender: Joi.string().valid('male', 'female').optional(),
+    semester: Joi.number().optional(),
+    rating: Joi.number().max(5).optional(),
 })
 
 const userUpdateSchema = Joi.object({
@@ -31,9 +31,9 @@ const userUpdateSchema = Joi.object({
     }).optional(),
     fakultas: Joi.string().optional(),
     avatar: Joi.string().allow(null).optional(),
-    gender: Joi.().string().valid('male', 'female').optional(),
-    semester: Joi.().number().optional(),
-    rating: Joi.().number().max(5).optional(),
+    gender: Joi.string().valid('male', 'female').optional(),
+    semester: Joi.number().optional(),
+    rating: Joi.number().max(5).optional(),
 })
 
 module.exports = { userCreateSchema, userUpdateSchema }
