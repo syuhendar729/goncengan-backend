@@ -9,7 +9,7 @@ const userSend = (user) => {
         uid: user.uid,
         name: user.name,
         nim: user.nim,
-        avatar: user.avatar,
+        avatar: user.avatar || null,
         fcmToken: user.fcmToken || null,
     }
 }
@@ -17,7 +17,8 @@ const userSend = (user) => {
 const bookingPrice = (distance) => {
     const multiple1000m = Math.ceil(distance / 1000)
     const price = 2000 + (multiple1000m - 1) * 2000
-    return price
+	const discountPrice = parseFloat(price - ((price * 30) / 100))
+    return discountPrice
 }
 
 const driverCreateRoom = async (req, res) => {

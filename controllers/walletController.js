@@ -46,12 +46,14 @@ const getWalletAllData = async (req, res) => {
 		const { dataIncome, dataExpense, ...data } = walletData.data()
 		dataIncome.forEach((income) => {
 			const { timeDate, ...other } = income
-			const formattedDate = moment(income.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			// const formattedDate = moment(income.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			const formattedDate = moment(income.timeDate.toDate()).format('YYYY-MM-DD HH:mm:ss')
 			dataIncomeFormatted.push({ timeDate: formattedDate, ...other })
 		})
 		dataExpense.forEach((expense) => {
 			const { timeDate, ...other } = expense
-			const formattedDate = moment(expense.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			// const formattedDate = moment(expense.timeDate.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
+			const formattedDate = moment(expense.timeDate.toDate()).format('YYYY-MM-DD HH:mm:ss')
 			dataExpenseFormatted.push({ timeDate: formattedDate, ...other })
 		})
         res.send({ message: 'Successfully get all data', data: { dataIncome: dataIncomeFormatted, dataExpense: dataExpenseFormatted, ...data } })
@@ -109,10 +111,18 @@ const payoutRequest = async (req, res) => {
     }
 }
 
+const discountFirstWeek = (income) => {
+	const originPrice = parseFloat(income + ((income * 30) / 100))
+	const driverIncome = parseFloat(originPrice + ((originPrice * 30) / 100))
+	const adminIncome = parseFloat(driverIncome - income)
+	return { adminIncome, driverIncome }
+}
+
 const updateWalletIncome = async (walletId, income, data) => {
 	try {
-		const adminIncome = parseFloat((income * 20) / 100) 
-		const driverIncome = parseFloat(income - adminIncome)
+		// const adminIncome = parseFloat((income * 20) / 100) // origin
+		// const driverIncome = parseFloat(income - adminIncome) // origin
+		const { adminIncome, driverIncome } = discountFirstWeek(income)
 		const walletDocDriver = Wallet.doc(walletId)
 		const walletDocAdmin = Wallet.doc('ADMIN')
 		await walletDocAdmin.update({ 
@@ -158,6 +168,7 @@ const getDetailPayout = async (req, res) => {
 		res.status(500).send({ message: '', error })
 	}
 }
+
 
 module.exports = {
     getWalletBalance,
