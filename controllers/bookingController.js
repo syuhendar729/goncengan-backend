@@ -178,7 +178,7 @@ const getRoomCurrentLocation = async (req, res) => {
 const passengerGetPrice = async (req, res) => {
 	try {
 		const distance = req.body.distance
-		const price = bookingPrice(distance)
+		const price = await bookingPrice(distance)
 		res.send({ message: 'Successfully get price!', data: { distance, price } })
 	} catch (error) {
 		console.log(error)

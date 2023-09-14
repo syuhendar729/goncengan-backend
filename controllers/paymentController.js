@@ -133,12 +133,12 @@ const notificationTransaction = async (req, res) => {
                 title: 'Status Pembayaran',
                 message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`,
             }
-            /* sendNotification(
-                bookingRoomData.data().passenger.uid,
-                notifDataPassenger,
-                bookingRoomData.data().driver.uid,
-            )
-            sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid) */
+			sendNotification(
+				bookingRoomData.data().passenger.uid,
+				notifDataPassenger,
+				bookingRoomData.data().driver.uid,
+			)
+			sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid)
         }
     } catch (error) {
         console.error(error)
