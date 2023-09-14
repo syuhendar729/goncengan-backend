@@ -1,6 +1,7 @@
 const { Timestamp, Filter, FieldValue } = require('firebase-admin/firestore')
 const BookingRoom = require('../instances/firestoreInstance')('booking_room')
 const Summary = require('../instances/firestoreInstance')('summary')
+const Price = require('../instances/firestoreInstance')('price')
 const { resultBookingRoom, resultLiveRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
 
@@ -14,11 +15,26 @@ const userSend = (user) => {
     }
 }
 
-const bookingPrice = (distance) => {
-    const multiple1000m = Math.ceil(distance / 1000)
-    const price = 2000 + (multiple1000m - 1) * 2000
-	const discountPrice = parseFloat(price - ((price * 30) / 100))
-    return discountPrice
+const bookingPrice = async (distance) => {
+	try {
+		const priceDecision = await Price.doc('decision').get()
+		const tarifPer2KM = priceDecision.data().tarif_increase_per2km
+		const tarifStart = priceDecision.data().tarif_start
+		if (distance <= 2000) {
+			const discountPrice = parseFloat(tarifStart - ((tarifStart * 30) / 100))
+			return discountPrice
+			// return tarifStart
+		} else {
+			const multiple2000m = Math.ceil(distance / 2000)
+			const price = tarifStart + (multiple2000m - 1) * tarifPer2KM
+			const discountPrice = parseFloat(price - ((price * 30) / 100))
+			return discountPrice
+			// return price
+		}
+	} catch (error) {
+		console.log(error)
+		throw new Error('Failed calculate price!')
+	}
 }
 
 const driverCreateRoom = async (req, res) => {
@@ -58,7 +74,7 @@ const driverCreateRoom = async (req, res) => {
 const passengerCreateRoom = async (req, res) => {
     try {
         const distance = req.body.distance
-        const price = bookingPrice(distance)
+        const price = await bookingPrice(distance)
         const passenger = await getUserById(req.uid)
         const resPass = userSend(passenger)
         const bookingRoomDoc = BookingRoom.doc(req.body.bookingId)
@@ -87,7 +103,7 @@ const passengerCreateRoom = async (req, res) => {
 const passengerGetRoom = async (req, res) => {
     try {
         const distance = req.body.distance
-        const price = bookingPrice(distance)
+        const price = await bookingPrice(distance)
         const bookingRooms = await resultBookingRoom(req.body.passenger, price)
 
         if (bookingRooms.length != 0)

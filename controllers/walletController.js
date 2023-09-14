@@ -2,6 +2,7 @@ const moment = require('moment')
 const Wallet = require('../instances/firestoreInstance')('wallet')
 const Payout = require('../instances/firestoreInstance')('payout')
 const Summary = require('../instances/firestoreInstance')('summary')
+const Price = require('../instances/firestoreInstance')('price')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
 
 const getWalletBalance = async (req, res) => {
@@ -111,18 +112,36 @@ const payoutRequest = async (req, res) => {
     }
 }
 
-const discountFirstWeek = (income) => {
-	const originPrice = parseFloat(income + ((income * 30) / 100))
-	const driverIncome = parseFloat(originPrice + ((originPrice * 30) / 100))
-	const adminIncome = parseFloat(driverIncome - income)
-	return { adminIncome, driverIncome }
+const calculateDiscount = async (income) => {
+	try {
+		const priceDecision = await Price.doc('decision').get()
+		const passengerDiscount = priceDecision.data().passenger_percent_discount
+		const percentAdmin = priceDecision.data().admin_percent_income
+		const percentRewardDriver = priceDecision.data().driver_reward_percent_income
+		console.log('KETETAPAN HARGA: ', passengerDiscount, percentAdmin, percentRewardDriver)
+		console.log('CETAK LAYAR INI')
+
+		// if (income == 4000) {}
+		// else {}
+
+		const originPrice = parseFloat((income * 100) / (100 - passengerDiscount))
+		const dirverOriginIncome = parseFloat((originPrice * (100 - percentAdmin)) / 100)
+		const driverIncome = Math.floor(parseFloat(dirverOriginIncome + ((dirverOriginIncome * percentRewardDriver) / 100)))
+		const adminIncome = Math.floor(parseFloat(income - driverIncome))
+
+		console.log(originPrice, driverIncome, adminIncome)
+		return { adminIncome, driverIncome }
+	} catch (error) {
+		console.log(error)
+		throw new Error('Failed to calculate price')
+	}
 }
 
 const updateWalletIncome = async (walletId, income, data) => {
 	try {
 		// const adminIncome = parseFloat((income * 20) / 100) // origin
 		// const driverIncome = parseFloat(income - adminIncome) // origin
-		const { adminIncome, driverIncome } = discountFirstWeek(income)
+		const { adminIncome, driverIncome } = await calculateDiscount(income)
 		const walletDocDriver = Wallet.doc(walletId)
 		const walletDocAdmin = Wallet.doc('ADMIN')
 		await walletDocAdmin.update({ 
@@ -154,11 +173,6 @@ const updateWalletIncome = async (walletId, income, data) => {
 
 const getDetailPayout = async (req, res) => {
 	try {
-		/* const payouts = await Payout.where('driverId', '==', req.uid).get()
-		const payoutData = []
-		payouts.forEach((doc) => {
-			payoutData.push({ ...doc.data() })
-		}) */
 		const payoutData = await Payout.doc(req.body.payoutId).get()
 		const { payoutTime, ...data } = payoutData.data()
 		const formattedDate = moment(payoutTime.toDate()).utcOffset(7).format('YYYY-MM-DD HH:mm:ss')
@@ -168,7 +182,6 @@ const getDetailPayout = async (req, res) => {
 		res.status(500).send({ message: '', error })
 	}
 }
-
 
 module.exports = {
     getWalletBalance,

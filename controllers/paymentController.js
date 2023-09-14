@@ -22,6 +22,7 @@ const createTransaction = async (req, res) => {
             driverId: req.uid,
             passengerId: passenger.uid,
             bookingId,
+			transactionStatus: null
         })
         const driver = await getUserById(req.uid)
         const transaction = await snap.createTransaction(parameter(payDoc.id, price, driver))
@@ -90,6 +91,7 @@ const notificationTransaction = async (req, res) => {
         const amount = parseFloat(gross_amount)
         const payDoc = Payment.doc(orderId)
         const payData = await payDoc.get()
+		if (!payData.exists) throw new Error('Payment not found!')
         const transactionStatus = payData.data().transactionStatus
 
         const driverId = payData.data().driverId
@@ -98,7 +100,7 @@ const notificationTransaction = async (req, res) => {
         const bookingRoomDoc = BookingRoom.doc(bookingId)
 
         if (!payData.exists) throw new Error(`Payment id: ${orderId} not found!`)
-        else if (transactionStatus === 'expire' || transactionStatus === 'pending' || transactionStatus == undefined) {
+        else if (transactionStatus === 'expire' || transactionStatus === 'pending' || transactionStatus === null) {
             console.log('Update transaction: ', req.body, new Date())
             await payDoc.update({
                 price: amount,
@@ -131,12 +133,12 @@ const notificationTransaction = async (req, res) => {
                 title: 'Status Pembayaran',
                 message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`,
             }
-            sendNotification(
+            /* sendNotification(
                 bookingRoomData.data().passenger.uid,
                 notifDataPassenger,
                 bookingRoomData.data().driver.uid,
             )
-            sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid)
+            sendNotification(bookingRoomData.data().driver.uid, notifDataDriver, bookingRoomData.data().passenger.uid) */
         }
     } catch (error) {
         console.error(error)
