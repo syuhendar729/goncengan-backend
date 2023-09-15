@@ -64,11 +64,26 @@ const finishTransaction = async (req, res) => {
     try {
         const { order_id, transaction_status: transactionStatus } = req.query
         const payDoc = Payment.doc(order_id)
-        // await payDoc.update({ transactionStatus })
-        res.send({
-            message: 'Successfully call the API callback!',
-            data: req.query,
-        })
+		res.setHeader('Content-Type', 'text/html')
+		res.status(200).send(`
+			<html>
+			<style>
+			  body {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				height: 100vh; /* Mengisi tinggi viewport */
+				margin: 0;
+			  }
+			</style>
+				<body>
+					<h1>BERHASIL TRANSASKSI!</h1><h3>STATUS TRANSAKSI: ${req.query.transaction_status}</h3> 
+				</body>
+			</html>`)
+        // res.send({
+        //     message: 'Successfully call the API callback!',
+        //     data: req.query,
+        // })
     } catch (error) {
         console.error(err)
         res.status(500).send({
@@ -131,7 +146,7 @@ const notificationTransaction = async (req, res) => {
             }
             const notifDataDriver = {
                 title: 'Status Pembayaran',
-                message: `Anda telah menerima uang sebesar Rp${amount} denan ID ${orderId}!`,
+                message: `Anda telah menerima uang sebesar Rp${amount} dengan ID ${orderId}!`,
             }
 			sendNotification(
 				bookingRoomData.data().passenger.uid,

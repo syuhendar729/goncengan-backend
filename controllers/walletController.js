@@ -191,5 +191,6 @@ module.exports = {
 	updateDataWallet,
     payoutRequest,
 	updateWalletIncome,
-	getDetailPayout
+	getDetailPayout,
+	calculateDiscount
 }

@@ -4,6 +4,7 @@ const Summary = require('../instances/firestoreInstance')('summary')
 const Price = require('../instances/firestoreInstance')('price')
 const { resultBookingRoom, resultLiveRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
+// const { calculateDiscount } = require('./walletController')
 
 const userSend = (user) => {
     return {
@@ -104,6 +105,7 @@ const passengerGetRoom = async (req, res) => {
     try {
         const distance = req.body.distance
         const price = await bookingPrice(distance)
+		// const priceDecision = await Price.doc('decision').passenger_percent_discount
         const bookingRooms = await resultBookingRoom(req.body.passenger, price)
 
         if (bookingRooms.length != 0)
@@ -179,6 +181,11 @@ const passengerGetPrice = async (req, res) => {
 	try {
 		const distance = req.body.distance
 		const price = await bookingPrice(distance)
+		/* const priceDecision = await Price.doc('decision').get()
+		const percentDiscount = priceDecision.data().passenger_percent_discount
+		const percentReward = priceDecision.data().driver_reward_percent_income
+		const { adminIncome, driverIncome } = await calculateDiscount(price) */
+		// res.send({ message: 'Successfully get price!', data: { distance, price, percentDiscount, percentReward, adminIncome, driverIncome } })
 		res.send({ message: 'Successfully get price!', data: { distance, price } })
 	} catch (error) {
 		console.log(error)
