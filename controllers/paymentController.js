@@ -9,6 +9,7 @@ const { snap, parameter } = require('../config/midtransConfig')
 const { getUserById } = require('./userFirestoreController')
 const { updateWalletIncome } = require('./walletController')
 const { sendNotification } = require('./fcmController')
+const { calculateDiscount } = require('./priceController')
 
 const createTransaction = async (req, res) => {
     try {
@@ -62,30 +63,56 @@ const createExpireTransaction = async (orderId, data) => {
 const finishTransaction = async (req, res) => {
     console.log('Finish Transaction: ', req.query)
     try {
-        const { order_id, transaction_status: transactionStatus } = req.query
-        const payDoc = Payment.doc(order_id)
-		res.setHeader('Content-Type', 'text/html')
-		res.status(200).send(`
+        const { order_id: orderId } = req.query
+        const roomData = await BookingRoom.doc(orderId).get()
+		const { driver, passenger, price } = roomData.data()
+		const { driverOriginIncome, passengerDiscount, percentRewardDriver, originPrice, adminIncome, driverIncome } = await calculateDiscount(price)
+		const sendHtml = `
+			<!DOCTYPE html>
 			<html>
-			<style>
-			  body {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				height: 100vh; /* Mengisi tinggi viewport */
-				margin: 0;
-			  }
-			</style>
-				<body>
-					<h1>BERHASIL TRANSASKSI!</h1><h3>STATUS TRANSAKSI: ${req.query.transaction_status}</h3> 
-				</body>
-			</html>`)
+			<head>
+				<style>
+					body {
+						display: flex;
+						flex-direction: column; /* Mengatur tata letak dalam kolom */
+						justify-content: center;
+						align-items: center;
+						height: 100vh;
+						margin: 0;
+						text-align: center;
+						background-color: #d3f7a7; /* Warna latar belakang hijau muda */
+						font-family: "Comic Mono", monospace; /* Jenis font Comic Mono */
+					}
+					
+					h3 {
+						margin: 5px 0; /* Mengurangi margin atas dan bawah menjadi 5px */
+						font-weight: normal; /* Menghilangkan efek bold */
+					}
+				</style>
+			</head>
+			<body>
+				<h1>Pembayaran Berhasil!</h1>
+				<h3>OrderID: ${orderId}</h3>
+				<h3>Penerima (driver): ${driver.name}</h3>
+				<h3>Pengirim (passenger): ${passenger.name}</h3>
+				<h3>Diskon passenger: ${passengerDiscount}%</h3>
+				<h3>Harga asli: Rp${originPrice}</h3>
+				<h3>Harga diskon (70% harga asli): Rp${price}</h3>
+				<h3>Biaya aplikasi (25% harga asli): Rp${parseFloat(originPrice * 25 / 100)}</h3>
+				<h3>Reward driver (75% harga asli): Rp${driverOriginIncome}</h3>
+				<h3>Bonus driver (30% reward): Rp${driverIncome - driverOriginIncome}</h3>
+				<h3>Total pendapatan driver (reward + bonus): Rp${driverIncome}</h3>
+			</body>
+			</html>
+		`
+		res.setHeader('Content-Type', 'text/html')
+		res.status(200).send(sendHtml)
         // res.send({
         //     message: 'Successfully call the API callback!',
         //     data: req.query,
         // })
     } catch (error) {
-        console.error(err)
+        console.error(error)
         res.status(500).send({
             message: 'Failed to call the API callback!',
             error,

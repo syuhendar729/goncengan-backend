@@ -4,6 +4,7 @@ const Payout = require('../instances/firestoreInstance')('payout')
 const Summary = require('../instances/firestoreInstance')('summary')
 const Price = require('../instances/firestoreInstance')('price')
 const { Timestamp, FieldValue } = require('firebase-admin/firestore')
+const { calculateDiscount } = require('./priceController')
 
 const getWalletBalance = async (req, res) => {
     try {
@@ -112,31 +113,6 @@ const payoutRequest = async (req, res) => {
     }
 }
 
-const calculateDiscount = async (income) => {
-	try {
-		const priceDecision = await Price.doc('decision').get()
-		const passengerDiscount = priceDecision.data().passenger_percent_discount
-		const percentAdmin = priceDecision.data().admin_percent_income
-		const percentRewardDriver = priceDecision.data().driver_reward_percent_income
-		console.log('KETETAPAN HARGA: ', passengerDiscount, percentAdmin, percentRewardDriver)
-		console.log('CETAK LAYAR INI')
-
-		// if (income == 4000) {}
-		// else {}
-
-		const originPrice = parseFloat((income * 100) / (100 - passengerDiscount))
-		const dirverOriginIncome = parseFloat((originPrice * (100 - percentAdmin)) / 100)
-		const driverIncome = Math.floor(parseFloat(dirverOriginIncome + ((dirverOriginIncome * percentRewardDriver) / 100)))
-		const adminIncome = Math.floor(parseFloat(income - driverIncome))
-
-		console.log(originPrice, driverIncome, adminIncome)
-		return { adminIncome, driverIncome }
-	} catch (error) {
-		console.log(error)
-		throw new Error('Failed to calculate price')
-	}
-}
-
 const updateWalletIncome = async (walletId, income, data) => {
 	try {
 		// const adminIncome = parseFloat((income * 20) / 100) // origin
@@ -192,5 +168,4 @@ module.exports = {
     payoutRequest,
 	updateWalletIncome,
 	getDetailPayout,
-	calculateDiscount
 }

@@ -4,7 +4,7 @@ const Summary = require('../instances/firestoreInstance')('summary')
 const Price = require('../instances/firestoreInstance')('price')
 const { resultBookingRoom, resultLiveRoom } = require('./matchingBookController')
 const { getUserById } = require('./userFirestoreController')
-// const { calculateDiscount } = require('./walletController')
+const { bookingPrice } = require('./priceController')
 
 const userSend = (user) => {
     return {
@@ -14,28 +14,6 @@ const userSend = (user) => {
         avatar: user.avatar || null,
         fcmToken: user.fcmToken || null,
     }
-}
-
-const bookingPrice = async (distance) => {
-	try {
-		const priceDecision = await Price.doc('decision').get()
-		const tarifPer2KM = priceDecision.data().tarif_increase_per2km
-		const tarifStart = priceDecision.data().tarif_start
-		if (distance <= 2000) {
-			const discountPrice = parseFloat(tarifStart - ((tarifStart * 30) / 100))
-			return discountPrice
-			// return tarifStart
-		} else {
-			const multiple2000m = Math.ceil(distance / 2000)
-			const price = tarifStart + (multiple2000m - 1) * tarifPer2KM
-			const discountPrice = parseFloat(price - ((price * 30) / 100))
-			return discountPrice
-			// return price
-		}
-	} catch (error) {
-		console.log(error)
-		throw new Error('Failed calculate price!')
-	}
 }
 
 const driverCreateRoom = async (req, res) => {
