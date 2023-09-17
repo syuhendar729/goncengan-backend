@@ -10,7 +10,12 @@ const payoutRequestSchema = Joi.object({
 	amount: Joi.alternatives().conditional('rekening.type', { is: 'E-Wallet', then: Joi.number().min(21000), otherwise: Joi.number().min(22500) }).required(),
 	rekening: Joi.object({
 		type: Joi.string().valid('Bank', 'E-Wallet').required(),
-		provider: Joi.string().required(),
+		provider: Joi.alternatives().conditional('type', { 
+			is: 'E-Wallet', 
+			then: Joi.string().valid('DANA', 'OVO', 'ShopeePay', 'Gopay'), 
+			otherwise: Joi.string().valid('BRI', 'BSI', 'BCA', 'BNI', 'Mandiri', 'SeaBank', 'Jenius', 'Bank Jago') 
+		}).required(),
+		// provider: Joi.string().valid('DANA').required(),
 		number: Joi.string().pattern(/^[0-9]+$/).required(),
 	}) 
 })
